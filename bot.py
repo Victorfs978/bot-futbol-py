@@ -1,31 +1,29 @@
 import requests
 import re
 
-# La base de su imperio pirata
 URL_PANEL = "https://victorfs.neocities.org/"
 
 def saquear_imperio():
-    print(f"🏴‍☠️ INICIANDO SAQUEO EN EL PANEL: {URL_PANEL}")
+    print(f"🏴‍☠️ INICIANDO SAQUEO LIMPIO EN: {URL_PANEL}")
     headers = {'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64)'}
     
     try:
-        # 1. Entramos al panel principal para ver los 226 links
-        respuesta_panel = requests.get(URL_PANEL, headers=headers, timeout=15)
-        # Buscamos todos los links que están en los números (ej: canal1.html, etc)
-        objetivos = re.findall(r'href=["\'](.[^"\']+)["\']', respuesta_panel.text)
+        r_panel = requests.get(URL_PANEL, headers=headers, timeout=15)
+        # 1. Buscamos los links reales que están detrás de sus números
+        enlaces_sucios = re.findall(r'href=["\'](https?://[^"\']+)["\']', r_panel.text)
         
-        # Filtramos para quedarnos solo con las subpáginas de su Neocities
-        paginas_a_escanear = [URL_PANEL + obj for obj in objetivos if obj.endswith('.html') or '/' in obj]
-        print(f"🎯 Se detectaron {len(paginas_a_escanear)} objetivos piratas.")
+        # Limpiamos para que no se duplique el neocities.org
+        objetivos = list(set(enlaces_sucios)) 
+        print(f"🎯 Se detectaron {len(objetivos)} objetivos piratas REALES.")
 
         links_m3u8_finales = []
 
-        # 2. Entramos a cada una de las 226 páginas a robar el stream
-        for i, url in enumerate(paginas_a_escanear[:226]):
+        # 2. Atacamos cada web pirata de verdad
+        for i, url in enumerate(objetivos):
             try:
-                print(f"🕵️ Escaneando objetivo {i+1}: {url}")
-                r = requests.get(url, headers=headers, timeout=5)
-                # Buscamos el link .m3u8 escondido en el código
+                print(f"🕵️ Saqueando objetivo {i+1}: {url}")
+                r = requests.get(url, headers=headers, timeout=8)
+                # Buscamos el stream m3u8
                 streams = re.findall(r'http[s]?://[^\s"\'<>]+m3u8', r.text)
                 
                 for s in streams:
@@ -35,11 +33,12 @@ def saquear_imperio():
             except:
                 continue
 
-        print(f"\n🏆 BOTÍN TOTAL: {len(links_m3u8_finales)} señales capturadas.")
+        print(f"\n🏆 BOTÍN FINAL: {len(links_m3u8_finales)} señales capturadas.")
         
     except Exception as e:
-        print(f"❌ Error al entrar al panel: {e}")
+        print(f"❌ Error: {e}")
 
 if __name__ == "__main__":
     saquear_imperio()
+    
     
