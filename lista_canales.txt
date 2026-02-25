@@ -1,1 +1,1 @@
-ESTADO|Buscando señales... Reintente en 5 min.
+ERROR|No se pudo romper la seguridad de ningún canal.
