@@ -1,8 +1,7 @@
 import requests
 import re
-import base64
 
-# Tus objetivos estratégicos
+# Sus objetivos estratégicos
 URLS = [
     "https://teledeportes.top/stream-tv.php",
     "https://antenasport.top",
@@ -10,59 +9,57 @@ URLS = [
     "https://dlhd.link"
 ]
 
-def decodificar_base64(texto):
-    try:
-        # Algunos sitios esconden el .m3u8 en base64
-        return base64.b64decode(texto).decode('utf-8')
-    except:
-        return None
-
-def asalto_final(url):
-    # Disfraz de navegador móvil (más difícil de bloquear)
+def capturar_dinamico(url):
     headers = {
-        'User-Agent': 'Mozilla/5.0 (iPhone; CPU iPhone OS 17_0 like Mac OS X) AppleWebKit/605.1.15 (KHTML, like Gecko) Version/17.0 Mobile/15E148 Safari/604.1',
-        'Referer': url,
-        'Accept': '*/*'
+        'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/122.0.0.0 Safari/537.36',
+        'Referer': url
     }
     try:
+        # 1. Primer intento: Buscar en la página principal
         r = requests.get(url, headers=headers, timeout=15)
         html = r.text
+        
+        # Buscamos el m3u8 directo
+        match = re.search(r'["\'](https?://[^\s\'"]+\.m3u8[^\s\'"]*)["\']', html)
+        if match:
+            return match.group(1).replace('\\/', '/')
 
-        # 1. Buscar link directo
-        directo = re.findall(r'(https?://[^\s\'"]+\.m3u8[^\s\'"]*)', html)
-        if directo:
-            return directo[0].replace('\\/', '/')
-
-        # 2. Buscar links escondidos en variables 'source' o 'file'
-        escondido = re.search(r'(?:file|source|src):\s*["\']([^"\']+\.m3u8[^"\']*)["\']', html)
-        if escondido:
-            return escondido.group(1).replace('\\/', '/')
-
+        # 2. Segundo intento: Buscar IFRAMES (La mayoría de los piratas esconden el video aquí)
+        iframes = re.findall(r'<iframe.*?src=["\'](.*?)["\']', html)
+        for frame_url in iframes:
+            if not frame_url.startswith('http'):
+                continue # Saltar publicidad
+            
+            # Entramos al Iframe a buscar el tesoro
+            r_frame = requests.get(frame_url, headers={'Referer': url}, timeout=10)
+            match_frame = re.search(r'["\'](https?://[^\s\'"]+\.m3u8[^\s\'"]*)["\']', r_frame.text)
+            if match_frame:
+                return match_frame.group(1).replace('\\/', '/')
+                
     except:
         pass
     return None
 
-def iniciar_mision():
-    print("📡 Iniciando barrido de frecuencias...")
-    botin = []
+def mision_asalto():
+    print("🚀 Iniciando asalto a los servidores...")
+    capturados = []
     
     for i, url in enumerate(URLS):
-        link = asalto_final(url)
+        link = capturar_dinamico(url)
         if link:
-            print(f"✅ OBJETIVO CAPTURADO: {url}")
-            botin.append(f"CANAL_{i+1}|{link}")
+            print(f"✅ ¡PRESA CAZADA!: {url}")
+            capturados.append(f"CANAL_{i+1}|{link}")
         else:
-            print(f"❌ Escudo impenetrable en: {url}")
+            print(f"❌ Sitio blindado: {url}")
 
-    # Forzamos la creación del archivo para que GitHub no de error
+    # Guardamos el botín
     with open("lista_canales.txt", "w") as f:
-        if botin:
-            f.write("\n".join(botin))
+        if capturados:
+            f.write("\n".join(capturados))
         else:
-            f.write("ERROR|Los 226 sitios tienen las defensas altas. Reintentando...")
-    
-    print("🏁 Misión finalizada.")
+            # Si no captura nada, escribimos esto para saber que el bot falló en la búsqueda
+            f.write("ERROR|Los sitios detectaron el bot. Necesitamos cambiar de estrategia.")
 
 if __name__ == "__main__":
-    iniciar_mision()
+    mision_asalto()
     
