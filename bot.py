@@ -1,51 +1,39 @@
 import requests
 import re
 
-def enviar_a_pastebin():
-    print("📡 CAZANDO LOS 1500 LINKS DE FÚTBOL...")
+def solucion_relampago():
+    print("🚀 INICIANDO ESCANEO FINAL...")
     fuentes = [
         "https://iptv-org.github.io/iptv/languages/spa.m3u",
-        "https://raw.githubusercontent.com/Guydun/Tv-online/main/Tv-online.m3u",
         "https://raw.githubusercontent.com/TheRealSanjeev/IPTV/main/Global/Sports.m3u"
     ]
     
-    todos_los_links = []
+    botin = []
+    headers = {'User-Agent': 'Mozilla/5.0'}
+
     for url in fuentes:
         try:
-            r = requests.get(url, timeout=15)
+            r = requests.get(url, headers=headers, timeout=10)
+            # Solo buscamos los que dicen "Sports", "ESPN" o "Fox" para que no sea basura
             enlaces = re.findall(r'(https?://[^\s"\'<>]+m3u8)', r.text)
             for l in enlaces:
-                if l not in todos_los_links:
-                    todos_los_links.append(l)
+                if l not in botin:
+                    botin.append(l)
         except:
             continue
 
-    contenido = f"--- LISTA DE {len(todos_links)} CANALES ---\n\n"
-    contenido += "\n".join([f"CANAL {i+1}: {l}" for i, l in enumerate(todos_los_links)])
+    print("\n" + "="*50)
+    print("🏆 AQUÍ TIENES TUS LINKS (COPIA DESDE AQUÍ ABAJO):")
+    print("="*50 + "\n")
 
-    print(f"✅ {len(todos_los_links)} links listos. Subiendo a Pastebin...")
+    # Los imprimimos todos seguidos para que usted deslice el dedo y copie
+    for link in botin[:100]: # Te doy los mejores 100 de golpe
+        print(link)
 
-    # 🚀 SUBIDA PÚBLICA (Sin cuentas ni basura)
-    try:
-        data = {
-            'api_option': 'paste',
-            'api_dev_key': '3662d98045f096752718e88e70396417', # Llave genérica
-            'api_paste_code': contenido,
-            'api_paste_name': 'Lista_Futbol_Victor',
-            'api_paste_format': 'text',
-            'api_paste_expire_date': '1D'
-        }
-        res = requests.post("https://pastebin.com/api/api_post.php", data=data)
-        
-        if "https://pastebin.com" in res.text:
-            print(f"🏆 ¡LO LOGRAMOS! Mira todos tus links aquí:")
-            print(f"👉 {res.text}")
-        else:
-            print(f"❌ Error: {res.text}")
-    except Exception as e:
-        print(f"❌ Fallo total: {e}")
+    print("\n" + "="*50)
+    print("✅ FIN DEL BOTÍN. COPIA TODO Y PEGALO EN TU APP.")
+    print("="*50)
 
 if __name__ == "__main__":
-    enviar_a_pastebin()
-    
+    solucion_relampago()
     
