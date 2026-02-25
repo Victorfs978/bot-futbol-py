@@ -1,63 +1,62 @@
 import requests
 import re
 
-# URLs de tu lista que suelen pasar Tigo Sports
-URLS_TIGO = [
+# OBJETIVOS MADRE (Sitios que centralizan múltiples ligas)
+SITIOS_MADRE = [
     "https://teledeportes.top/stream-tv.php",
     "https://antenasport.top",
     "https://deporte-libre.click/",
-    "https://pelotalibretv.su"
+    "https://tudeporte.pro"
 ]
 
-def capturar_tigo(url):
+def extraer_iframe_limpio(url):
     headers = {
-        'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/122.0.0.0 Safari/537.36',
-        'Referer': url
+        'User-Agent': 'Mozilla/5.0 (Linux; Android 10; Mobile) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/122.0.0.0 Mobile Safari/537.36',
+        'Referer': 'https://google.com'
     }
     try:
-        # Entramos a la web que tiene el canal
         r = requests.get(url, headers=headers, timeout=15)
+        # Buscamos el src de los iframes que contienen el reproductor
+        iframes = re.findall(r'<iframe.*?src=["\'](.*?)["\']', r.text)
         
-        # BUSQUEDA NIVEL 1: Link directo en el código
-        directo = re.findall(r'(https?://[^\s\'"]+\.m3u8[^\s\'"]*)', r.text)
-        if directo:
-            return directo[0].replace('\\/', '/')
-
-        # BUSQUEDA NIVEL 2: Buscamos el Iframe donde se oculta el reproductor
-        iframe = re.search(r'<iframe.*?src=["\'](.*?)["\']', r.text)
-        if iframe:
-            url_frame = iframe.group(1)
-            if not url_frame.startswith('http'):
-                url_frame = "https:" + url_frame if url_frame.startswith('//') else url + url_frame
+        for link in iframes:
+            # Filtramos basura (anuncios y trackers comunes)
+            if any(x in link for x in ["facebook", "twitter", "google", "ads", "analytics"]):
+                continue
             
-            # Entramos al Iframe
-            r_frame = requests.get(url_frame, headers={'Referer': url}, timeout=10)
-            # Buscamos el m3u8 dentro del script del reproductor
-            m3u8_f = re.search(r'["\'](https?://[^\s\'"]+\.m3u8[^\s\'"]*)["\']', r_frame.text)
-            if m3u8_f:
-                return m3u8_f.group(1).replace('\\/', '/')
+            # Normalizamos el link para que sea una URL completa
+            if link.startswith('//'):
+                link = "https:" + link
+            elif not link.startswith('http'):
+                link = url + link
+                
+            return link # Retorna la primera puerta válida encontrada
     except:
         return None
     return None
 
-def ejecutar_mision():
-    print("🛰️ Buscando la señal de Tigo Sports...")
+def mision_asalto_hibrido():
+    print("📡 Iniciando rastreo de puertas (Iframes)...")
     resultados = []
     
-    for i, url in enumerate(URLS_TIGO):
-        link = capturar_tigo(url)
-        if link:
-            print(f"✅ TIGO SPORTS CAPTURADO en: {url}")
-            resultados.append(f"TIGO_SPORTS_{i+1}|{link}")
-    
-    # Escribimos el archivo para Sketchware
-    with open("lista_canales.txt", "w") as f:
+    for i, url in enumerate(SITIOS_MADRE):
+        iframe_url = extraer_iframe_limpio(url)
+        if iframe_url:
+            print(f"✅ PUERTA ABIERTA EN: {url}")
+            # Formato listo para su lista_canales.txt en Sketchware
+            resultados.append(f"CANAL_FUTBOL_{i+1}|{iframe_url}")
+        else:
+            print(f"❌ Muralla detectada en: {url}")
+
+    # Escribimos el botín en el archivo que ya conoce su Main
+    with open("lista_canales.txt", "w", encoding='utf-8') as f:
         if resultados:
             f.write("\n".join(resultados))
         else:
-            f.write("TIGO_SPORTS|SIN_SEÑAL_ACTIVA")
-            print("❌ No se encontró la señal. Los piratas cambiaron el cifrado.")
+            f.write("ESTADO|Buscando señales... Reintente en 5 min.")
+            
+    print(f"🏁 Misión terminada. Se encontraron {len(resultados)} puertas.")
 
 if __name__ == "__main__":
-    ejecutar_mision()
+    mision_asalto_hibrido()
     
