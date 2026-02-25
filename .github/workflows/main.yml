@@ -1,9 +1,36 @@
+name: Bot_Futbol_Auto_Victor
+
+on:
+  workflow_dispatch: # ESTO ACTIVA EL BOTÓN "RUN WORKFLOW"
+  schedule:
+    - cron: "0 * * * *" # Corre cada hora
+
+jobs:
+  run-bot:
+    runs-on: ubuntu-latest
+    permissions:
+      contents: write
+    steps:
+      - name: Clonar repositorio
+        uses: actions/checkout@v4
+
+      - name: Instalar Python
+        uses: actions/setup-python@v4
+        with:
+          python-version: '3.9'
+
+      - name: Instalar Dependencias
+        run: pip install requests
+
+      - name: Ejecutar Bot Maestro
+        run: python bot.py
+
       - name: GUARDAR Y SUBIR CAMBIOS
         run: |
           git config --local user.email "victor@centro-mando.com"
           git config --local user.name "Victorfs978-Bot"
-          # Si el archivo no existe, lo crea vacío para evitar errores
-          touch lista_canales.txt 
+          touch lista_canales.txt
           git add lista_canales.txt
-          git commit -m "Actualización: $(date)" || echo "Nada nuevo"
-          git push
+          git commit -m "Actualización: $(date)" || echo "Sin cambios"
+          git push origin main
+          
