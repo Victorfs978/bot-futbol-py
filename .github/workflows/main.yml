@@ -1,0 +1,21 @@
+name: Bot_Futbol_Auto_Victor
+on:
+  schedule:
+    - cron: '*/15 * * * *' # Se activa solo cada 15 minutos
+  workflow_dispatch: # Boton manual por si quiere darle "Play" usted
+
+jobs:
+  run-bot:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Clonar repositorio
+        uses: actions/checkout@v3
+      - name: Instalar Python
+        uses: actions/setup-python@v4
+        with:
+          python-version: '3.9'
+      - name: Instalar Firebase
+        run: pip install firebase-admin
+      - name: Ejecutar Bot Maestro
+        run: python bot.py
+        
