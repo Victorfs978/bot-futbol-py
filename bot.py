@@ -3,42 +3,43 @@ import re
 
 URL_PANEL = "https://victorfs.neocities.org/"
 
-def saquear_imperio():
-    print(f"🏴‍☠️ INICIANDO SAQUEO LIMPIO EN: {URL_PANEL}")
-    headers = {'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64)'}
+def saquear_agresivo():
+    print(f"🏴‍☠️ INICIANDO ATAQUE DE PRECISIÓN EN: {URL_PANEL}")
+    headers = {
+        'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/119.0.0.0 Safari/537.36',
+        'Referer': 'https://google.com'
+    }
     
     try:
         r_panel = requests.get(URL_PANEL, headers=headers, timeout=15)
-        # 1. Buscamos los links reales que están detrás de sus números
-        enlaces_sucios = re.findall(r'href=["\'](https?://[^"\']+)["\']', r_panel.text)
+        # Extraemos links limpios
+        enlaces = re.findall(r'href=["\'](https?://[^"\']+)["\']', r_panel.text)
+        objetivos = list(set([e for e in enlaces if "neocities" not in e or e.count("http") == 1]))
         
-        # Limpiamos para que no se duplique el neocities.org
-        objetivos = list(set(enlaces_sucios)) 
-        print(f"🎯 Se detectaron {len(objetivos)} objetivos piratas REALES.")
+        print(f"🎯 Objetivos reales a saquear: {len(objetivos)}")
+        botin = []
 
-        links_m3u8_finales = []
-
-        # 2. Atacamos cada web pirata de verdad
         for i, url in enumerate(objetivos):
             try:
-                print(f"🕵️ Saqueando objetivo {i+1}: {url}")
-                r = requests.get(url, headers=headers, timeout=8)
-                # Buscamos el stream m3u8
-                streams = re.findall(r'http[s]?://[^\s"\'<>]+m3u8', r.text)
+                print(f"🕵️ Saqueando {i+1}/{len(objetivos)}: {url}")
+                r = requests.get(url, headers=headers, timeout=10)
                 
-                for s in streams:
-                    if s not in links_m3u8_finales:
-                        links_m3u8_finales.append(s)
-                        print(f"  ✅ SEÑAL CAPTURADA: {s}")
+                # Buscamos m3u8, mp4, o cualquier señal de stream
+                streams = re.findall(r'(https?://[^\s"\'<>]+(?:\.m3u8|\.mp4|\.ts|index\.m3u8))', r.text)
+                
+                if streams:
+                    for s in streams:
+                        if s not in botin:
+                            botin.append(s)
+                            print(f"  ✅ ¡LO TENGO!: {s}")
             except:
                 continue
 
-        print(f"\n🏆 BOTÍN FINAL: {len(links_m3u8_finales)} señales capturadas.")
+        print(f"\n🏆 BOTÍN FINAL: {len(botin)} señales capturadas.")
         
     except Exception as e:
-        print(f"❌ Error: {e}")
+        print(f"❌ Error fatal: {e}")
 
 if __name__ == "__main__":
-    saquear_imperio()
-    
+    saquear_agresivo()
     
