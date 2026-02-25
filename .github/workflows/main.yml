@@ -1,9 +1,8 @@
-name: Bot_Futbol_Auto_Victor
-
+name: Bot_F12_Victor_Ofensiva
 on:
-  workflow_dispatch: # ESTO ACTIVA EL BOTÓN "RUN WORKFLOW"
+  workflow_dispatch:
   schedule:
-    - cron: "0 * * * *" # Corre cada hora
+    - cron: "0 * * * *" # Se ejecuta cada hora
 
 jobs:
   run-bot:
@@ -19,18 +18,20 @@ jobs:
         with:
           python-version: '3.9'
 
-      - name: Instalar Dependencias
-        run: pip install requests
+      - name: Instalar Herramientas F12 (Crítico)
+        run: |
+          pip install requests playwright
+          playwright install chromium
+          playwright install-deps
 
       - name: Ejecutar Bot Maestro
         run: python bot.py
 
       - name: GUARDAR Y SUBIR CAMBIOS
         run: |
-          git config --local user.email "victor@centro-mando.com"
-          git config --local user.name "Victorfs978-Bot"
-          touch lista_canales.txt
+          git config --local user.email "bot@futbol.com"
+          git config --local user.name "Victor-Bot"
           git add lista_canales.txt
-          git commit -m "Actualización: $(date)" || echo "Sin cambios"
+          git commit -m "Actualización F12: $(date)" || exit 0
           git push origin main
           
