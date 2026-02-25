@@ -1,49 +1,68 @@
 import requests
 import re
+import base64
 
-# Probemos con estos objetivos que son los más estables de tu lista
+# Tus objetivos estratégicos
 URLS = [
     "https://teledeportes.top/stream-tv.php",
     "https://antenasport.top",
-    "https://strumyk.uk",
-    "https://daddyhd.com"
+    "https://daddyhd.com",
+    "https://dlhd.link"
 ]
 
-def capturador_pro(url):
-    headers = {
-        'User-Agent': 'Mozilla/5.0 (Linux; Android 10; SM-G960U) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/122.0.6261.64 Mobile Safari/537.36',
-        'Referer': 'https://google.com'
-    }
+def decodificar_base64(texto):
     try:
-        # Usamos un tiempo de espera más largo por si la web es lenta
-        r = requests.get(url, headers=headers, timeout=20)
-        # Buscamos m3u8 incluso si está oculto en el código fuente
-        links = re.findall(r'(https?://[^\s\'"]+\.m3u8[^\s\'"]*)', r.text)
-        if links:
-            return links[0].replace('\\/', '/')
+        # Algunos sitios esconden el .m3u8 en base64
+        return base64.b64decode(texto).decode('utf-8')
     except:
         return None
+
+def asalto_final(url):
+    # Disfraz de navegador móvil (más difícil de bloquear)
+    headers = {
+        'User-Agent': 'Mozilla/5.0 (iPhone; CPU iPhone OS 17_0 like Mac OS X) AppleWebKit/605.1.15 (KHTML, like Gecko) Version/17.0 Mobile/15E148 Safari/604.1',
+        'Referer': url,
+        'Accept': '*/*'
+    }
+    try:
+        r = requests.get(url, headers=headers, timeout=15)
+        html = r.text
+
+        # 1. Buscar link directo
+        directo = re.findall(r'(https?://[^\s\'"]+\.m3u8[^\s\'"]*)', html)
+        if directo:
+            return directo[0].replace('\\/', '/')
+
+        # 2. Buscar links escondidos en variables 'source' o 'file'
+        escondido = re.search(r'(?:file|source|src):\s*["\']([^"\']+\.m3u8[^"\']*)["\']', html)
+        if escondido:
+            return escondido.group(1).replace('\\/', '/')
+
+    except:
+        pass
     return None
 
-def iniciar():
-    print("🕵️ Buscando transmisiones...")
-    final = []
-    for i, url in enumerate(URLS):
-        link = capturador_pro(url)
-        if link:
-            print(f"✅ ¡GOL! Capturado en: {url}")
-            final.append(f"CANAL_{i+1}|{link}")
-        else:
-            print(f"❌ Fallo en: {url}")
+def iniciar_mision():
+    print("📡 Iniciando barrido de frecuencias...")
+    botin = []
     
-    # IMPORTANTE: Creamos el archivo aunque esté vacío para que GitHub no se queje
-    with open("lista_canales.txt", "w") as f:
-        if final:
-            f.write("\n".join(final))
+    for i, url in enumerate(URLS):
+        link = asalto_final(url)
+        if link:
+            print(f"✅ OBJETIVO CAPTURADO: {url}")
+            botin.append(f"CANAL_{i+1}|{link}")
         else:
-            f.write("MANTENIMIENTO|Buscando señales nuevas...")
-    print("📂 Proceso terminado.")
+            print(f"❌ Escudo impenetrable en: {url}")
+
+    # Forzamos la creación del archivo para que GitHub no de error
+    with open("lista_canales.txt", "w") as f:
+        if botin:
+            f.write("\n".join(botin))
+        else:
+            f.write("ERROR|Los 226 sitios tienen las defensas altas. Reintentando...")
+    
+    print("🏁 Misión finalizada.")
 
 if __name__ == "__main__":
-    iniciar()
+    iniciar_mision()
     
