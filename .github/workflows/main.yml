@@ -1,34 +1,9 @@
-name: Bot_Futbol_Auto_Victor
-
-on:
-  schedule:
-    - cron: "*/15 * * * *" # Se activa cada 15 minutos
-  workflow_dispatch: # Botón manual
-
-jobs:
-  run-bot:
-    runs-on: ubuntu-latest
-    steps:
-      - name: Clonar repositorio
-        uses: actions/checkout@v3
-
-      - name: Instalar Python
-        uses: actions/setup-python@v4
-        with:
-          python-version: '3.9'
-
-      - name: Instalar Dependencias
-        run: |
-          pip install requests
-          pip install firebase-admin
-
-      - name: Ejecutar Bot Maestro
-        run: python bot.py
-
-      - name: GUARDAR Y SUBIR CAMBIOS (Misión Crítica)
+      - name: GUARDAR Y SUBIR CAMBIOS
         run: |
           git config --local user.email "victor@centro-mando.com"
           git config --local user.name "Victorfs978-Bot"
+          # Si el archivo no existe, lo crea vacío para evitar errores
+          touch lista_canales.txt 
           git add lista_canales.txt
-          git commit -m "Peces gordos capturados: $(date)" || echo "No hay cambios nuevos"
+          git commit -m "Actualización: $(date)" || echo "Nada nuevo"
           git push
