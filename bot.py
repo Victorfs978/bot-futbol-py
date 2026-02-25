@@ -2,8 +2,8 @@ import requests
 import re
 import os
 
-def guardar_y_publicar_botin():
-    print("📡 CAZANDO LOS 1500 LINKS...")
+def guardar_y_forzar_subida():
+    print("📡 BUSCANDO LOS 1500 LINKS...")
     fuentes = [
         "https://iptv-org.github.io/iptv/languages/spa.m3u",
         "https://raw.githubusercontent.com/Guydun/Tv-online/main/Tv-online.m3u",
@@ -21,20 +21,21 @@ def guardar_y_publicar_botin():
         except:
             continue
 
-    # 1. Guardamos el archivo localmente
+    # Creamos el archivo
     with open("lista_canales.txt", "w") as f:
         for i, link in enumerate(todos_los_links):
             f.write(f"CANAL {i+1}: {link}\n")
     
-    print(f"✅ {len(todos_los_links)} links guardados. Subiendo al repositorio...")
+    print(f"✅ {len(todos_los_links)} links listos. Forzando subida a Code...")
 
-    # 2. COMANDOS PARA QUE APAREZCA EN SU LISTA DE ARCHIVOS
-    os.system('git config --global user.name "GitHub Action"')
-    os.system('git config --global user.email "action@github.com"')
+    # COMANDOS DE FUERZA BRUTA PARA QUE APAREZCA
+    os.system('git config --local user.name "Victorfs978"')
+    os.system('git config --local user.email "victorfs978@github.com"')
     os.system('git add lista_canales.txt')
-    os.system('git commit -m "Actualizar lista de canales"')
-    os.system('git push')
+    os.system('git commit -m "Lista de 1500 links lista"')
+    # Usamos el token automático de GitHub para el push
+    os.system('git push https://x-access-token:${{ github.token }}@github.com/${{ github.repository }} HEAD:main')
 
 if __name__ == "__main__":
-    guardar_y_publicar_botin()
+    guardar_y_forzar_subida()
     
