@@ -1,1 +1,1 @@
-ERROR|Los sitios detectaron el bot. Necesitamos cambiar de estrategia.
+TIGO_SPORTS|SIN_SEÑAL_ACTIVA
