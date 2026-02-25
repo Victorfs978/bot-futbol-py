@@ -1,1 +1,1 @@
-TIGO_SPORTS|SIN_SEÑAL_ACTIVA
+ESTADO|Buscando señales... Reintente en 5 min.
