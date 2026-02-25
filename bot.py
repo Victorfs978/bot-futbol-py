@@ -1,8 +1,7 @@
 import requests
 import re
-import os
 
-# Lista simplificada para probar (agrega las 226 después si funciona esta)
+# Probemos con estos objetivos que son los más estables de tu lista
 URLS = [
     "https://teledeportes.top/stream-tv.php",
     "https://antenasport.top",
@@ -10,54 +9,41 @@ URLS = [
     "https://daddyhd.com"
 ]
 
-def extraer_directo(url):
+def capturador_pro(url):
     headers = {
-        'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/122.0.0.0 Safari/537.36',
-        'Referer': url
+        'User-Agent': 'Mozilla/5.0 (Linux; Android 10; SM-G960U) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/122.0.6261.64 Mobile Safari/537.36',
+        'Referer': 'https://google.com'
     }
     try:
-        response = requests.get(url, headers=headers, timeout=15)
-        text = response.text
-        
-        # BUSCADOR NINJA: Encuentra .m3u8 incluso con barras raras o protecciones simples
-        # Busca patrones tipo http...m3u8
-        enlaces = re.findall(r'https?%3A%2F%2F[\w\.\/%-]+\.m3u8|https?://[\w\.\/%-]+\.m3u8', text)
-        
-        if enlaces:
-            link = enlaces[0].replace('%3A', ':').replace('%2F', '/')
-            return link
-            
-        # Si no lo encuentra, busca dentro de variables JS comunes
-        js_link = re.search(r'source:\s*"([^"]+\.m3u8)"', text)
-        if js_link:
-            return js_link.group(1)
-            
-    except Exception as e:
-        print(f"Error en {url}: {e}")
+        # Usamos un tiempo de espera más largo por si la web es lenta
+        r = requests.get(url, headers=headers, timeout=20)
+        # Buscamos m3u8 incluso si está oculto en el código fuente
+        links = re.findall(r'(https?://[^\s\'"]+\.m3u8[^\s\'"]*)', r.text)
+        if links:
+            return links[0].replace('\\/', '/')
+    except:
+        return None
     return None
 
-def ejecutar():
-    resultados = []
-    print("🛰️ Iniciando escaneo de señales...")
-    
+def iniciar():
+    print("🕵️ Buscando transmisiones...")
+    final = []
     for i, url in enumerate(URLS):
-        link = extraer_directo(url)
+        link = capturador_pro(url)
         if link:
-            print(f"✅ ¡CAPTURADO!: {url}")
-            resultados.append(f"CANAL_{i+1}|{link}")
+            print(f"✅ ¡GOL! Capturado en: {url}")
+            final.append(f"CANAL_{i+1}|{link}")
         else:
-            print(f"❌ Sin señal: {url}")
-            
-    # CRÍTICO: Si no encontró nada, creamos el archivo con un aviso 
-    # para que GitHub Actions NO de error de 'file not found'
-    if not resultados:
-        resultados.append("STATUS|No se capturaron señales en este ciclo")
-
-    with open("lista_canales.txt", "w", encoding='utf-8') as f:
-        f.write("\n".join(resultados))
+            print(f"❌ Fallo en: {url}")
     
-    print("📂 Misión terminada. Archivo generado.")
+    # IMPORTANTE: Creamos el archivo aunque esté vacío para que GitHub no se queje
+    with open("lista_canales.txt", "w") as f:
+        if final:
+            f.write("\n".join(final))
+        else:
+            f.write("MANTENIMIENTO|Buscando señales nuevas...")
+    print("📂 Proceso terminado.")
 
 if __name__ == "__main__":
-    ejecutar()
+    iniciar()
     
