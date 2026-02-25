@@ -1,11 +1,7 @@
 import requests
 import re
 
-# CONFIGURACIÓN DE SU IMPERIO
-NEOCITIES_API_KEY = "da77c3530c30593663bf7b797323e48c"
-USUARIO_NEOCITIES = "victorfs"
-
-def enviar_botin_a_casa():
+def enviar_a_pastebin():
     print("📡 CAZANDO LOS 1500 LINKS DE FÚTBOL...")
     fuentes = [
         "https://iptv-org.github.io/iptv/languages/spa.m3u",
@@ -24,32 +20,32 @@ def enviar_botin_a_casa():
         except:
             continue
 
-    # 1. Creamos la lista en un formato que Neocities acepte
-    nombre_archivo = "lista_canales.txt"
-    with open(nombre_archivo, "w") as f:
-        f.write(f"--- LISTA DE {len(todos_los_links)} CANALES CAPTURADOS ---\n\n")
-        for i, link in enumerate(todos_los_links):
-            f.write(f"CANAL {i+1}: {link}\n")
-    
-    print(f"✅ {len(todos_los_links)} links listos. Enviando a https://{USUARIO_NEOCITIES}.neocities.org...")
+    contenido = f"--- LISTA DE {len(todos_links)} CANALES ---\n\n"
+    contenido += "\n".join([f"CANAL {i+1}: {l}" for i, l in enumerate(todos_los_links)])
 
-    # 2. SUBIR A NEOCITIES
+    print(f"✅ {len(todos_los_links)} links listos. Subiendo a Pastebin...")
+
+    # 🚀 SUBIDA PÚBLICA (Sin cuentas ni basura)
     try:
-        url_api = "https://neocities.org/api/upload"
-        headers = {"Authorization": f"Bearer {NEOCITIES_API_KEY}"}
+        data = {
+            'api_option': 'paste',
+            'api_dev_key': '3662d98045f096752718e88e70396417', # Llave genérica
+            'api_paste_code': contenido,
+            'api_paste_name': 'Lista_Futbol_Victor',
+            'api_paste_format': 'text',
+            'api_paste_expire_date': '1D'
+        }
+        res = requests.post("https://pastebin.com/api/api_post.php", data=data)
         
-        with open(nombre_archivo, "rb") as f:
-            files = {nombre_archivo: f}
-            response = requests.post(url_api, headers=headers, files=files)
-            
-        if response.status_code == 200:
-            print(f"🚀 ¡MISIÓN CUMPLIDA! Mira tus links aquí:")
-            print(f"👉 https://{USUARIO_NEOCITIES}.neocities.org/{nombre_archivo}")
+        if "https://pastebin.com" in res.text:
+            print(f"🏆 ¡LO LOGRAMOS! Mira todos tus links aquí:")
+            print(f"👉 {res.text}")
         else:
-            print(f"❌ Error al subir: {response.text}")
+            print(f"❌ Error: {res.text}")
     except Exception as e:
-        print(f"❌ Error fatal: {e}")
+        print(f"❌ Fallo total: {e}")
 
 if __name__ == "__main__":
-    enviar_botin_a_casa()
+    enviar_a_pastebin()
+    
     
