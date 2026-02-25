@@ -1,71 +1,55 @@
 import requests
 import re
 
-def ataque_stream2watch():
-    print("🦅 INICIANDO OPERACIÓN OJO DE HALCÓN: OBJETIVO STREAM2WATCH.PK")
+def gran_asalto_226():
+    print("🚀 INICIANDO EL GRAN ASALTO: BARRIDO DE 226 LINKS DESDE NEOCITIES...")
     
-    url_base = "https://stream2watch.pk/"
+    # URL de su centro de mando
+    lista_neocities = "https://victorfs.neocities.org/lista_canales.txt"
+    
     headers = {
-        'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/120.0.0.0 Safari/537.36',
-        'Referer': 'https://stream2watch.pk/',
-        'Accept-Language': 'es-ES,es;q=0.9'
+        'User-Agent': 'Mozilla/5.0 (Linux; Android 10; SM-G960F) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/120.0.0.0 Mobile Safari/537.36',
+        'Referer': 'https://streamtp10.com/'
     }
 
     try:
-        print("🛰️ Escaneando lista de canales internacionales...")
-        r = requests.get(url_base, headers=headers, timeout=15)
-        
-        # 1. Capturamos los enlaces de las páginas de cada canal
-        # Buscamos patrones como /video/canal-nombre
-        canales_paginas = re.findall(r'href=["\'](https?://stream2watch\.pk/video/[^\s"\'<>]+)["\']', r.text)
-        
-        if not canales_paginas:
-            # Intento alternativo si los links son relativos
-            canales_paginas = re.findall(r'href=["\'](/video/[^\s"\'<>]+)["\']', r.text)
-            canales_paginas = ["https://stream2watch.pk" + c for c in canales_paginas]
+        # 1. Obtenemos sus 226 objetivos
+        r_lista = requests.get(lista_neocities, headers=headers, timeout=15)
+        objetivos = re.findall(r'(https?://[^\s"\'<>]+)', r_lista.text)
+        print(f"✅ {len(objetivos)} objetivos cargados. ¡Fuego a discreción!")
 
-        print(f"✅ Se detectaron {len(canales_paginas)} canales potenciales.")
+        botin_final = []
 
-        botin_premium = []
-
-        # 2. Entramos a los primeros 20 (donde suelen estar los DAZN y beIN)
-        for i, url_canal in enumerate(canales_paginas[:20]):
+        # 2. Atacamos cada link buscando el 'playbackURL' o el '.m3u8'
+        for i, url in enumerate(objetivos):
+            if "neocities" in url: continue # Saltamos su propia web
             try:
-                nombre_canal = url_canal.split('/')[-1]
-                print(f"🔍 Analizando: {nombre_canal}...")
+                print(f"🛰️ Escaneando ({i+1}/{len(objetivos)}): {url}")
+                r_web = requests.get(url, headers=headers, timeout=7)
                 
-                r_canal = requests.get(url_canal, headers=headers, timeout=10)
+                # Buscamos la señal de video con la técnica que nos dio éxito
+                video = re.search(r'var\s+playbackURL\s*=\s*["\'](.*?\.m3u8.*?)["\']', r_web.text)
+                if not video:
+                    video = re.search(r'["\'](https?://.*?\.m3u8.*?)["\']', r_web.text)
                 
-                # Buscamos la 'joya': el iframe o el link m3u8 escondido
-                # Estas webs suelen usar 'source', 'file' o 'url' en scripts
-                stream = re.search(r'["\'](https?://.*?\.m3u8.*?)["\']', r_canal.text)
-                
-                if stream:
-                    enlace = stream.group(1)
-                    botin_premium.append(f"{nombre_canal.upper()}: {enlace}")
-                    print(f"  ⚽ ¡ENCONTRADO!: {nombre_canal}")
-                else:
-                    # Si no hay m3u8, buscamos el servidor de video (iframe)
-                    iframe = re.search(r'iframe.*?src=["\'](https?://.*?)["\']', r_canal.text)
-                    if iframe:
-                        botin_premium.append(f"{nombre_canal.upper()} (IFRAME): {iframe.group(1)}")
-                        print(f"  📺 IFRAME DETECTADO: {nombre_canal}")
+                if video:
+                    enlace = video.group(1)
+                    if enlace not in botin_final:
+                        botin_final.append(enlace)
+                        print(f"  💰 ¡BOTÍN ASEGURADO!")
             except:
                 continue
 
-        print("\n" + "="*50)
-        if botin_premium:
-            print(f"🏆 BOTÍN INTERNACIONAL: {len(botin_premium)} CANALES")
-            for item in botin_premium:
-                print(item)
-        else:
-            print("🚨 El sitio usa protección 'Anti-Bot'.")
-            print("💡 TIP: Mañana usaremos un simulador de clic para este sitio.")
-        print("="*50)
+        print("\n" + "X"*50)
+        print(f"🏆 MISIÓN CUMPLIDA: {len(botin_final)} CANALES PREMIUM DETECTADOS")
+        print("X"*50)
+        for canal in botin_final:
+            print(f"⚽ {canal}")
+        print("X"*50)
 
     except Exception as e:
-        print(f"❌ Error de conexión: {e}")
+        print(f"❌ Error en el centro de mando: {e}")
 
 if __name__ == "__main__":
-    ataque_stream2watch()
-    
+    gran_asalto_226()
+                
