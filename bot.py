@@ -1,47 +1,81 @@
-import requests, re, os
+import requests
+from bs4 import BeautifulSoup
+import os
 
-H = {'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36'}
+# DISFRAZ DE ÉLITE (iPhone + Referer)
+HEADERS = {
+    'User-Agent': 'Mozilla/5.0 (iPhone; CPU iPhone OS 17_0 like Mac OS X) AppleWebKit/605.1.15 (KHTML, like Gecko) Version/17.0 Mobile/15E148 Safari/605.1',
+    'Referer': 'https://www.google.com/'
+}
 
-def mision_agenda_vip():
-    print("[*] Recuperando nombres de partidos de CastMedia...")
+def mision_alfa_web1():
+    print("[*] Escaneando Web 1 (MadPlay)...")
+    url = "https://ganzqowo.ps34buy87z6lothrough.sbs/es/"
     lista = []
     try:
-        r = requests.get("https://castmedia.click/", headers=H, timeout=12)
-        # Buscamos los links que tienen nombre de partido
-        enlaces = re.findall(r'https?://[^\s<>"]+\.php', r.text)
-        for link in set(enlaces):
-            # Convertimos el nombre del archivo en el nombre del partido
-            nombre_sucio = link.split('/')[-1].replace('.php', '').replace('_', ' ')
-            nombre_final = nombre_sucio.upper()
-            lista.append(f"EVENTO: {nombre_final}|{link}")
+        r = requests.get(url, headers=HEADERS, timeout=10)
+        soup = BeautifulSoup(r.text, 'html.parser')
+        for link in soup.find_all('a', href=True):
+            if any(x in link['href'] for x in ['/football/', '/basketball/']):
+                nombre = link.text.strip().upper()
+                if nombre: lista.append(f"W1: {nombre}|{link['href']}")
     except: pass
     return lista
 
-def mision_canales_fijos():
-    print("[*] Asegurando señales 24/7 de AntenaSport...")
+def mision_bravo_web2():
+    print("[*] Verificando Web 2 (24/7)...")
+    url = "https://stream2watch.pk/s2w/808"
+    try:
+        r = requests.get(url, headers=HEADERS, timeout=10)
+        if "vveetchit.my/embed/stream-73.php" in r.text:
+            return "W2: STREAM2WATCH VIP|https://vveetchit.my/embed/stream-73.php"
+    except: return None
+
+def mision_charlie_web3():
+    print("[*] Escaneando Web 3 (AntenaSport)...")
+    url = "https://antenasport.top/"
     lista = []
     try:
-        r = requests.get("https://antenasport.top/", headers=H, timeout=12)
-        canales = re.findall(r'href="(https?://antenasport\.top/[^"]+\.php)"', r.text)
-        for i, link in enumerate(set(canales), 1):
-            lista.append(f"24-7: SEÑAL {i} PREMIUM|{link}")
+        r = requests.get(url, headers=HEADERS, timeout=10)
+        soup = BeautifulSoup(r.text, 'html.parser')
+        for a in soup.find_all('a', href=True):
+            if 'antenasport.top/' in a['href'] and '.php' in a['href']:
+                nombre = a.text.strip().upper()
+                if nombre and "INICIO" not in nombre:
+                    lista.append(f"W3: CANAL {len(lista)+1} VIP|{a['href']}")
     except: pass
     return lista
 
-def ejecucion_final():
-    print("🔥 RECONSTRUYENDO BASE DE DATOS...")
-    partidos = mision_agenda_vip()
-    estables = mision_canales_fijos()
-    
-    total = partidos + estables
-    
+def mision_echo_vipleague():
+    print("[*] Infiltrando Nueva Víctima (VipLeague)...")
+    url = "https://vipleague.io/football-schedule-streaming-links"
+    lista = []
+    try:
+        r = requests.get(url, headers=HEADERS, timeout=15)
+        soup = BeautifulSoup(r.text, 'html.parser')
+        for row in soup.find_all('div', class_='match-row'):
+            link = row.find('a', href=True)
+            if link:
+                nombre = link.text.strip().upper()
+                if nombre: lista.append(f"VIP: {nombre}|{link['href']}")
+    except: pass
+    return lista
+
+def ejecutar_operacion():
+    total = mision_alfa_web1()
+    c247 = mision_bravo_web2()
+    if c247: total.append(c247)
+    web3 = mision_charlie_web3()
+    total.extend(web3)
+    web4 = mision_echo_vipleague()
+    total.extend(web4)
+
     with open("lista_canales.txt", "w") as f:
         f.write("\n".join(total))
-    
-    print(f"\n[!] RESTAURACIÓN COMPLETA: {len(total)} canales con nombre.")
-    if len(total) > 0:
-        os.system('git add . && git commit -m "Restauración: Agenda + 24/7" && git push origin main')
-        print("[+] El botín vuelve a estar seguro en GitHub.")
+
+    print(f"\n[!] VICTORIA: {len(total)} canales de 4 fuentes capturados.")
+    os.system("git add . && git commit -m 'Infiltración Cuádruple VIP' && git push origin main")
+    print("[+] GitHub actualizado.")
 
 if __name__ == "__main__":
-    ejecucion_final()
+    ejecutar_operacion()
