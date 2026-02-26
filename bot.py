@@ -7,12 +7,9 @@ HEADERS = {
     'Referer': 'https://www.google.com/'
 }
 
-# Lista de palabras que NO son partidos
-BASURA = ["APK", "FÚTBOL", "BALONCESTO", "CRICKET", "HOCKEY", "BÁDMINTON", "VOLEIBOL", "CICLISMO", "BALONMANO", "BÉISBOL", "TELEGRAM", "POLÍTICA", "TÉRMINOS", "YOUTUBE", "FORMULA 1", "EN VIVO", "FUTBOL AMERICANO", "FÚTBOL AUS"]
-
 def mision_ataque_nuevo_servidor():
     url_base = "https://mayhypy.smnjdigv2pxjchest.cfd/es/"
-    print(f"[*] Atacando servidor: {url_base}")
+    print(f"[*] Escaneando eventos en: {url_base}")
     lista = []
     try:
         r = requests.get(url_base, headers=HEADERS, timeout=10)
@@ -21,16 +18,18 @@ def mision_ataque_nuevo_servidor():
             nombre = link.text.strip().upper()
             href = link['href']
             
-            # FILTRO INTELIGENTE: Si el nombre es largo y NO está en la lista negra
-            if len(nombre) > 10 and not any(b in nombre for b in BASURA):
-                full_link = href if href.startswith('http') else f"https://mayhypy.smnjdigv2pxjchest.cfd{href}"
-                lista.append(f"LIBERTADORES: {nombre}|{full_link}")
-                print(f"[+] PARTIDO CAPTURADO: {nombre}")
+            # FILTRO FRANCOTIRADOR: Solo si contiene "VS", " AT " o es un nombre largo de equipo
+            # Y descartamos palabras de menú que detectamos en tu captura
+            if len(nombre) > 12 and any(x in nombre for x in [" VS ", " AT ", "CLUB", "COPA", "GUARA"]):
+                if not any(b in nombre for b in ["YOUTUBE", "POLÍTICA", "TÉRMINOS", "APK"]):
+                    full_link = href if href.startswith('http') else f"https://mayhypy.smnjdigv2pxjchest.cfd{href}"
+                    lista.append(f"PARTIDO: {nombre}|{full_link}")
+                    print(f"[+] ¡EVENTO CONFIRMADO!: {nombre}")
     except: pass
     return lista
 
 def mision_extra_vipleague():
-    print("[*] Reforzando con VipLeague...")
+    print("[*] Buscando refuerzos en VipLeague...")
     url = "https://vipleague.io/football-schedule-streaming-links"
     lista = []
     try:
@@ -40,17 +39,22 @@ def mision_extra_vipleague():
             link = row.find('a', href=True)
             if link:
                 nombre = link.text.strip().upper()
-                if len(nombre) > 5:
-                    lista.append(f"VIP-LEAGUE: {nombre}|{link['href']}")
+                if " VS " in nombre or len(nombre) > 15:
+                    lista.append(f"VIP-EVENTO: {nombre}|{link['href']}")
     except: pass
     return lista
 
 def ejecutar_operacion():
     eventos = mision_ataque_nuevo_servidor() + mision_extra_vipleague()
+    
+    if not eventos:
+        print("[!] No se encontraron partidos activos con 'VS'.")
+    
     with open("lista_canales.txt", "w") as f:
         f.write("\n".join(eventos))
-    print(f"\n[!] VICTORIA: {len(eventos)} partidos reales capturados.")
-    os.system("git add . && git commit -m 'Filtro de eventos activado' && git push origin main")
+        
+    print(f"\n[!] VICTORIA: {len(eventos)} eventos reales capturados.")
+    os.system("git add . && git commit -m 'Filtro Francotirador: Solo partidos reales' && git push origin main")
 
 if __name__ == "__main__":
     ejecutar_operacion()
