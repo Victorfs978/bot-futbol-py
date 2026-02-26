@@ -1,37 +1,30 @@
-name: Bot_F12_Victor_Ofensiva
+name: Victor_Ofensiva_Final
+
 on:
-  workflow_dispatch:
   schedule:
-    - cron: "0 * * * *" # Se ejecuta cada hora
+    - cron: '0 * * * *' # Se ejecuta cada hora solo
+  workflow_dispatch: # Botón para disparar manualmente
 
 jobs:
   run-bot:
     runs-on: ubuntu-latest
-    permissions:
-      contents: write
     steps:
       - name: Clonar repositorio
-        uses: actions/checkout@v4
+        uses: actions/checkout@v3
 
       - name: Instalar Python
         uses: actions/setup-python@v4
         with:
           python-version: '3.9'
 
-      - name: Instalar Herramientas F12 (Crítico)
-        run: |
-          pip install requests playwright
-          playwright install chromium
-          playwright install-deps
-
-      - name: Ejecutar Bot Maestro
+      - name: Ejecutar Ataque
         run: python bot.py
 
-      - name: GUARDAR Y SUBIR CAMBIOS
+      - name: Guardar y Subir Cambios
         run: |
-          git config --local user.email "bot@futbol.com"
-          git config --local user.name "Victor-Bot"
+          git config --global user.name "Victor-Bot"
+          git config --global user.email "bot@github.com"
           git add lista_canales.txt
-          git commit -m "Actualización F12: $(date)" || exit 0
-          git push origin main
+          git commit -m "Actualización Masiva MadPlay77" || exit 0
+          git push
           
