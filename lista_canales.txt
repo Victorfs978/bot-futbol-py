@@ -10,11 +10,10 @@ W3: BETHD|https://antenasport.top/embed.php?id=bet12175717&rtitle=BET
 W3: BETHD|https://antenasport.top/embed.php?id=bet12174412&rtitle=BET
 W3: BETHD|https://antenasport.top/embed.php?id=bet12169662&rtitle=BET
 W3: BETHD|https://antenasport.top/embed.php?id=bet12175737&rtitle=BET
-W3: BETHD|https://antenasport.top/embed.php?id=bet12169903&rtitle=BET
-W3: BETHD|https://antenasport.top/embed.php?id=bet12168565&rtitle=BET
-W3: BETHD|https://antenasport.top/embed.php?id=bet12136444&rtitle=BET
 W3: BETHD|https://antenasport.top/embed.php?id=bet12168628&rtitle=BET
 W3: BETHD|https://antenasport.top/embed.php?id=bet12174856&rtitle=BET
+W3: BETHD|https://antenasport.top/embed.php?id=bet12169903&rtitle=BET
+W3: BETHD|https://antenasport.top/embed.php?id=bet12136444&rtitle=BET
 W3: BETHD|https://antenasport.top/embed.php?id=bet12175689&rtitle=BET
 W3: BETHD|https://antenasport.top/embed.php?id=bet12174409&rtitle=BET
 W3: BETHD|https://antenasport.top/embed.php?id=bet12132311&rtitle=BET
@@ -22,13 +21,14 @@ W3: BETHD|https://antenasport.top/embed.php?id=bet12178255&rtitle=BET
 W3: BETHD|https://antenasport.top/embed.php?id=bet12178257&rtitle=BET
 W3: BETHD|https://antenasport.top/embed.php?id=bet12178258&rtitle=BET
 W3: BETHD|https://antenasport.top/embed.php?id=bet12178462&rtitle=BET
+W3: BETHD|https://antenasport.top/embed.php?id=bet12168565&rtitle=BET
 W3: BETHD|https://antenasport.top/embed.php?id=bet12175688&rtitle=BET
 W3: BETHD|https://antenasport.top/embed.php?id=bet12167812&rtitle=BET
 W3: BETHD|https://antenasport.top/embed.php?id=bet12174867&rtitle=BET
 W3: BETHD|https://antenasport.top/embed.php?id=bet12175608&rtitle=BET
 W3: BETHD|https://antenasport.top/embed.php?id=bet12175621&rtitle=BET
-W3: BETHD|https://antenasport.top/embed.php?id=bet12136431&rtitle=BET
 W3: BETHD|https://antenasport.top/embed.php?id=bet12177909&rtitle=BET
+W3: BETHD|https://antenasport.top/embed.php?id=bet12136431&rtitle=BET
 W3: BETHD|https://antenasport.top/embed.php?id=bet12042820&rtitle=BET
 W3: BETHD|https://antenasport.top/embed.php?id=bet12178256&rtitle=BET
 W3: BETHD|https://antenasport.top/embed.php?id=bet12178461&rtitle=BET
@@ -456,6 +456,10 @@ W3: ARENASPORT5HRHD|https://antenasport.top/arenasport5hr.php
 W3: SPORT5ILHD|https://antenasport.top/sport5il.php
 W3: SPORT4PTHD|https://antenasport.top/sport4pt.php
 W3: DIEMASPORTHD|https://antenasport.top/diemasport.php
+W3: ANTENASPORT TOP 10HD|https://antenasport.top/10.php
+W3: ANTENASPORT TOP 29HD|https://antenasport.top/29.php
+W3: ANTENASPORT TOP 16HD|https://antenasport.top/16.php
+W3: ANTENASPORT TOP 77HD|https://antenasport.top/77.php
 W3: HUBPREMIER1HD|https://antenasport.top/hubpremier1.php
 W3: SKYMAINHD|https://antenasport.top/skymain.php
 W3: USAHD|https://antenasport.top/usa.php
@@ -483,6 +487,8 @@ W3: SKYFOOTBALLHD|https://antenasport.top/skyfootball.php
 W3: COSMOTE3HD|https://antenasport.top/cosmote3.php
 W3: SPORT5PTHD|https://antenasport.top/sport5pt.php
 W3: ARENASPORT3SRHD|https://antenasport.top/arenasport3sr.php
+W3: ANTENASPORT TOP 19HD|https://antenasport.top/19.php
+W3: ANTENASPORT TOP 21HD|https://antenasport.top/21.php
 W3: SPORT1PTHD|https://antenasport.top/sport1pt.php
 W3: SPORTDIGITALDEHD|https://antenasport.top/sportdigitalde.php
 W3: BETHD|https://antenasport.top/embed.php?id=bet11843528&rtitle=BET
