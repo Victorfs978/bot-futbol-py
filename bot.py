@@ -1,46 +1,41 @@
-import requests, re, os
+import requests, re, os, time
 from bs4 import BeautifulSoup
 
-HEADERS = {'User-Agent': 'Mozilla/5.0 (iPhone; CPU iPhone OS 17_0 like Mac OS X)'}
+# Identidad de infiltración
+H = {'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36'}
 
-def mision_alfa_web1():
-    url = "https://ganzomo.ps4buy8z6btothrough.sbs/es/"
+def mision_castmedia():
+    print("[*] Atacando CastMedia: Extrayendo agenda de eventos...")
+    url = "https://castmedia.click/"
     lista = []
     try:
-        r = requests.get(url, headers=HEADERS, timeout=10)
-        soup = BeautifulSoup(r.text, 'html.parser')
-        for link in soup.find_all('a', href=True):
-            if any(x in link['href'] for x in ['/football/', '/basketball/']):
-                nombre = link.text.strip().upper()
-                if nombre: lista.append(f"M1: {nombre}|{link['href']}")
-    except: pass
+        r = requests.get(url, headers=H, timeout=15)
+        # Extraemos todos los enlaces .php (como los de flixxlive.pro que viste)
+        enlaces = re.findall(r'https?://[^\s<>"]+\.php', r.text)
+        
+        for link in set(enlaces):
+            # Limpiamos el nombre para que quede bien en tu app
+            nombre_sucio = link.split('/')[-1].replace('.php', '').replace('_', ' ').upper()
+            lista.append(f"CAST: {nombre_sucio}|{link}")
+            print(f"[+] Capturado: {nombre_sucio}")
+    except Exception as e: 
+        print(f"[-] Error en el asalto: {e}")
     return lista
 
-def mision_fox_tp10():
-    print("[*] Perforando Búnker StreamTP10...")
-    url = "https://streamtp10.com/"
-    lista = []
-    h = {'User-Agent': 'Mozilla/5.0', 'Referer': url}
-    try:
-        r = requests.get(url, headers=h, timeout=10)
-        canales = re.findall(r'global1\.php\?stream=([^"]+)', r.text)
-        for c in set(canales):
-            try:
-                r2 = requests.get(f"{url}global1.php?stream={c}", headers=h, timeout=5)
-                iframe = re.search(r'iframe.*?src=["\']([^"\']+)["\']', r2.text)
-                if iframe: lista.append(f"TP10: {c.upper()}|{iframe.group(1)}")
-            except: continue
-    except: pass
-    return lista
-
-def ejecutar():
-    total = mision_alfa_web1()
-    total.extend(mision_fox_tp10())
-    # ... (simplificado para que entre el búnker)
+def ejecutar_operacion():
+    print("[*] Iniciando ciclo de sangrado...")
+    botin = mision_castmedia()
+    
+    # Escribimos los resultados en el archivo
     with open("lista_canales.txt", "w") as f:
-        f.write("\n".join(total))
-    print(f"[!] VICTORIA: {len(total)} canales capturados.")
-    os.system('git add . && git commit -m "Infiltracion TP10 Exitosa" && git push origin main')
+        f.write("\n".join(botin))
+    
+    print(f"[!] VICTORIA: {len(botin)} canales extraídos de CastMedia.")
+    
+    # Subida automática a tu búnker de GitHub
+    if len(botin) > 0:
+        os.system('git add . && git commit -m "Asalto Exitoso: CastMedia Infiltrado" && git push origin main')
+        print("[+] Botín asegurado en GitHub.")
 
 if __name__ == "__main__":
-    ejecutar()
+    ejecutar_operacion()
