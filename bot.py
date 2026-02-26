@@ -2,62 +2,67 @@ import requests
 import re
 from concurrent.futures import ThreadPoolExecutor
 
-# --- FUENTES DE ALTO RENDIMIENTO (60 FPS / 720p) ---
-FUENTES_FLUIDAS = [
-    "https://raw.githubusercontent.com/DeXTeR085/IPTV/main/Global.m3u",
+# --- EL RADAR DE NOMBRES: FÚTBOL MUNDIAL ---
+NOMBRES_FUTBOL = [
+    # Sudamérica y Centroamérica
+    "Tigo Sports", "TyC Sports", "TNT Sports", "DSports", "DIRECTV Sports", 
+    "Win Sports", "GolTV", "VIX", "TUDN", "Claro Sports", "TV Max", "RPC Deportes", 
+    "Latina", "Caracol", "RCN", "Teleamazonas", "TV Publica", "Azteca Deportes",
+    # Internacional y Europa
+    "ESPN", "Fox Sports", "beIN Sports", "DAZN", "Movistar Liga", "Sky Sports", 
+    "BT Sport", "Eurosport", "LaLiga TV", "Premier League", "RMC Sport", 
+    "Canal+ Sport", "Eleven Sports", "Setanta Sports", "Ziggo Sport",
+    # Canales de Clubes y FIFA
+    "Real Madrid TV", "Barca TV", "MUTV", "Milan TV", "FIFA+", "UEFA TV"
+]
+
+FUENTES_MUNDIALES = [
+    "https://iptv-org.github.io/iptv/index.m3u",
+    "https://raw.githubusercontent.com/iptv-org/iptv/master/categories/sports.m3u",
+    "https://raw.githubusercontent.com/Fmacedo87/iptv/master/Deportes.m3u",
     "https://raw.githubusercontent.com/m3u8playlist/free-iptv-channels/main/sport.m3u",
-    "https://raw.githubusercontent.com/Soky9/TV/main/Sport.m3u",
-    "https://iptv-org.github.io/iptv/index.m3u"
+    "https://raw.githubusercontent.com/DeXTeR085/IPTV/main/Global.m3u"
 ]
 
-# --- OBJETIVOS DE FÚTBOL REAL ---
-CANALES_FUTBOL = [
-    "TIGO SPORTS", "TYC SPORTS", "ESPN", "FOX SPORTS", "WIN SPORTS", 
-    "TNT SPORTS", "DIRECTV SPORTS", "DSPORTS", "GOLTV", "BEIN SPORTS",
-    "MOVISTAR LALIGA", "DAZN", "SKY SPORTS", "PREMIER LEAGUE", "TUDN"
-]
-
-def capturar_fluidez(url):
-    headers = {'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36'}
+def capturar_por_nombre(url):
+    headers = {'User-Agent': 'Mozilla/5.0'}
     try:
-        r = requests.get(url, headers=headers, timeout=20)
-        # Captura Nombre y URL
+        r = requests.get(url, headers=headers, timeout=25)
+        # Captura el nombre del canal y el link
         matches = re.findall(r'#EXTINF:.*?,(.*?)\n(http.*?m3u8[^\s]*)', r.text)
         
-        botin_paso = []
+        resultados = []
         for nombre, link in matches:
-            n_up = nombre.upper()
-            l_low = link.lower()
-            
-            # 1. Filtro de Nombre (Solo fútbol)
-            if any(f in n_up for f in CANALES_FUTBOL):
-                # 2. Filtro de Basura (Fuera cine y novelas)
-                if not any(b in n_up for b in ["CINE", "MOVIES", "RADIO", "KIDS", "NOVELA"]):
-                    # 3. Filtro de Rendimiento (Buscamos 720 o señales estables)
-                    # No obligamos a que diga HD, pero evitamos las que digan 360 o 240
-                    if not any(q in n_up for q in ["360P", "240P", "LOW", "SD"]):
-                        botin_paso.append(f"{nombre.strip()}|{link.strip()}")
-        return botin_paso
+            nombre_up = nombre.upper()
+            # Si el nombre del canal está en nuestra lista de fútbol, lo guardamos
+            if any(objetivo.upper() in nombre_up for objetivo in NOMBRES_FUTBOL):
+                # Filtro básico: fuera radio y adultos
+                if not any(b in nombre_up for b in ["RADIO", "XXX", "ADULT"]):
+                    resultados.append(f"{nombre.strip()}|{link.strip()}")
+        return resultados
     except:
         return []
 
-def asalto_720_fps():
-    print("🚀 Iniciando captura de señales fluidas (720p/FPS)...")
-    total_recolectado = []
+def asalto_nombres_total():
+    print("📡 Iniciando barrido masivo por nombres de canales...")
+    botin_nombres = []
 
-    with ThreadPoolExecutor(max_workers=8) as executor:
-        listas = list(executor.map(capturar_fluidez, FUENTES_FLUIDAS))
+    with ThreadPoolExecutor(max_workers=10) as executor:
+        listas = list(executor.map(capturar_por_nombre, FUENTES_MUNDIALES))
     
     for l in listas:
-        total_recolectado.extend(l)
+        botin_nombres.extend(l)
 
-    # Limpieza de duplicados
-    botin_final = list(set(total_recolectado))
+    # Eliminar duplicados para que la lista sea limpia
+    botin_final = sorted(list(set(botin_nombres)))
 
     with open("lista_canales.txt", "w", encoding='utf-8') as f:
         if botin_final:
             f.write("\n".join(botin_final))
-            print(f"🏁 ¡ESTAMOS LISTOS! {len(botin_final)} canales capturados para su App.")
+            print(f"🏁 ¡MISIÓN CUMPLIDA! Se capturaron {len(botin_final)} canales de fútbol por nombre.")
         else:
-            f.write("ERROR|No se encontraron señales con la
-                               
+            f.write("ERROR|No se encontraron canales con los nombres solicitados.")
+
+if __name__ == "__main__":
+    asalto_nombres_total()
+    
