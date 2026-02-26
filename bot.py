@@ -7,60 +7,59 @@ HEADERS = {
     'Referer': 'https://www.google.com/'
 }
 
-def mision_alfa_madplay():
-    print("[*] Escaneando MadPlay (Fuerza Bruta)...")
-    url = "https://ganzqowo.ps34buy87z6lothrough.sbs/es/"
+def mision_ataque_nuevo_servidor():
+    # URL del nuevo servidor que detectaste
+    url_base = "https://mayhypy.smnjdigv2pxjchest.cfd/es/"
+    print(f"[*] Atacando servidor: {url_base}")
     lista = []
     try:
-        r = requests.get(url, headers=HEADERS, timeout=10)
+        r = requests.get(url_base, headers=HEADERS, timeout=10)
         soup = BeautifulSoup(r.text, 'html.parser')
+        # Buscamos todos los enlaces de la página
         for link in soup.find_all('a', href=True):
             nombre = link.text.strip().upper()
             href = link['href']
-            # Capturamos todo lo que tenga nombre real para no perder eventos
-            if nombre and len(nombre) > 3 and "HTTP" in href.upper():
-                lista.append(f"MADPLAY: {nombre}|{href}")
-    except: pass
+            
+            # Filtro de Fuerza Bruta: Si tiene nombre y no es un link interno genérico
+            if nombre and len(nombre) > 5 and not any(x in nombre for x in ["INICIO", "CONTACTO", "POLITICA"]):
+                # Si el link es relativo, le pegamos la base
+                full_link = href if href.startswith('http') else f"https://mayhypy.smnjdigv2pxjchest.cfd{href}"
+                lista.append(f"EVENTO: {nombre}|{full_link}")
+                print(f"[+] Capturado: {nombre[:40]}...")
+    except Exception as e:
+        print(f"[!] Error en el asalto: {e}")
     return lista
 
-def mision_bravo_web2():
-    print("[*] Verificando Stream2Watch VIP...")
-    url = "https://stream2watch.pk/s2w/808"
-    try:
-        r = requests.get(url, headers=HEADERS, timeout=10)
-        if "vveetchit.my/embed/stream-73.php" in r.text:
-            return "S2W: STREAM2WATCH VIP|https://vveetchit.my/embed/stream-73.php"
-    except: return None
-
-def mision_echo_vipleague():
-    print("[*] Infiltrando VipLeague (Agendas)...")
+def mision_extra_vipleague():
+    print("[*] Reforzando con VipLeague...")
     url = "https://vipleague.io/football-schedule-streaming-links"
     lista = []
     try:
-        r = requests.get(url, headers=HEADERS, timeout=15)
+        r = requests.get(url, headers=HEADERS, timeout=12)
         soup = BeautifulSoup(r.text, 'html.parser')
         for row in soup.find_all('div', class_='match-row'):
             link = row.find('a', href=True)
             if link:
                 nombre = link.text.strip().upper()
-                if nombre: lista.append(f"VIP-LEAGUE: {nombre}|{link['href']}")
+                lista.append(f"VIP-LEAGUE: {nombre}|{link['href']}")
     except: pass
     return lista
 
 def ejecutar_operacion():
-    total = mision_alfa_madplay()
+    print("🔥 INICIANDO RECOLECCIÓN DE EVENTOS...")
     
-    c247 = mision_bravo_web2()
-    if c247: total.append(c247)
+    # Prioridad absoluta al nuevo servidor
+    eventos_principales = mision_ataque_nuevo_servidor()
+    eventos_secundarios = mision_extra_vipleague()
     
-    total.extend(mision_echo_vipleague())
+    todo = eventos_principales + eventos_secundarios
 
     with open("lista_canales.txt", "w") as f:
-        f.write("\n".join(total))
+        f.write("\n".join(todo))
 
-    print(f"\n[!] OPERACIÓN LIMPIA: {len(total)} eventos de calidad capturados.")
-    os.system("git add . && git commit -m 'Limpieza: AntenaSport eliminado' && git push origin main")
-    print("[+] GitHub actualizado sin basura.")
+    print(f"\n[!] VICTORIA: {len(todo)} eventos capturados del nuevo dominio.")
+    os.system("git add . && git commit -m 'Asalto masivo al nuevo servidor' && git push origin main")
+    print("[+] Botín enviado a GitHub.")
 
 if __name__ == "__main__":
     ejecutar_operacion()
