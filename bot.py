@@ -42,7 +42,7 @@ def mision_charlie_web3():
             if 'antenasport.top/' in a['href'] and '.php' in a['href']:
                 nombre = a.text.strip().upper()
                 if nombre and "INICIO" not in nombre:
-                    lista.append(f"W3: {nombre}|{a['href']}")
+                    lista.append(f"W3: CANAL {len(lista)+1} VIP|{a['href']}")
     except: pass
     return lista
 
