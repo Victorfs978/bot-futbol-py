@@ -2,62 +2,62 @@ import requests
 import re
 from concurrent.futures import ThreadPoolExecutor
 
-# --- ELITE DE FUENTES (Menos cantidad, más calidad) ---
-FUENTES_PREMIUM = [
+# --- FUENTES DE ALTO RENDIMIENTO (60 FPS / 720p) ---
+FUENTES_FLUIDAS = [
     "https://raw.githubusercontent.com/DeXTeR085/IPTV/main/Global.m3u",
-    "https://raw.githubusercontent.com/Lundis/IPTV-World/master/IPTV.m3u",
-    "https://raw.githubusercontent.com/Soky9/TV/main/Sport.m3u"
+    "https://raw.githubusercontent.com/m3u8playlist/free-iptv-channels/main/sport.m3u",
+    "https://raw.githubusercontent.com/Soky9/TV/main/Sport.m3u",
+    "https://iptv-org.github.io/iptv/index.m3u"
 ]
 
-# --- RADAR DE FÚTBOL PREMIUM ---
-NOMBRES_ORO = [
-    "ESPN PREMIUM", "FOX SPORTS PREMIUM", "TYC SPORTS HD", "TIGO SPORTS HD",
-    "WIN SPORTS+", "DIRECTV SPORTS HD", "DSPORTS HD", "TNT SPORTS HD",
-    "DAZN F1", "BEIN SPORTS 1 HD", "MOVISTAR LALIGA", "SKY SPORTS MAIN EVENT",
-    "PREMIER LEAGUE TV", "CANAL+ SPORT HD", "GOL PLAY HD", "TUDN HD"
+# --- OBJETIVOS DE FÚTBOL REAL ---
+CANALES_FUTBOL = [
+    "TIGO SPORTS", "TYC SPORTS", "ESPN", "FOX SPORTS", "WIN SPORTS", 
+    "TNT SPORTS", "DIRECTV SPORTS", "DSPORTS", "GOLTV", "BEIN SPORTS",
+    "MOVISTAR LALIGA", "DAZN", "SKY SPORTS", "PREMIER LEAGUE", "TUDN"
 ]
 
-def inspeccion_de_elite(url):
+def capturar_fluidez(url):
     headers = {'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36'}
     try:
         r = requests.get(url, headers=headers, timeout=20)
-        # Buscamos el patrón: Nombre y URL
+        # Captura Nombre y URL
         matches = re.findall(r'#EXTINF:.*?,(.*?)\n(http.*?m3u8[^\s]*)', r.text)
         
-        filtrados = []
+        botin_paso = []
         for nombre, link in matches:
-            n = nombre.upper()
-            # 1. ¿Es de nuestra lista de ORO?
-            if any(target in n for target in NOMBRES_ORO):
-                # 2. FILTRO DE CALIDAD: Solo HD o 1080p, nada de mierda 360p
-                if any(q in n for q in ["HD", "1080P", "4K", "FHD"]) or "premium" in n.lower():
-                    # 3. FILTRO ANTI-BLOQUEO: Ignoramos links de servidores conocidos por fallar
-                    if not any(b in link for b in ["iptv-org", "geo-blocked", "localhost"]):
-                        filtrados.append(f"{nombre.strip()}|{link.strip()}")
-        return filtrados
+            n_up = nombre.upper()
+            l_low = link.lower()
+            
+            # 1. Filtro de Nombre (Solo fútbol)
+            if any(f in n_up for f in CANALES_FUTBOL):
+                # 2. Filtro de Basura (Fuera cine y novelas)
+                if not any(b in n_up for b in ["CINE", "MOVIES", "RADIO", "KIDS", "NOVELA"]):
+                    # 3. Filtro de Rendimiento (Buscamos 720 o señales estables)
+                    # No obligamos a que diga HD, pero evitamos las que digan 360 o 240
+                    if not any(q in n_up for q in ["360P", "240P", "LOW", "SD"]):
+                        botin_paso.append(f"{nombre.strip()}|{link.strip()}")
+        return botin_paso
     except:
         return []
 
-def ataque_calidad_total():
-    print("🚀 Iniciando purga... buscando solo FÚTBOL HD PREMIUM.")
-    botin_hd = []
+def asalto_720_fps():
+    print("🚀 Iniciando captura de señales fluidas (720p/FPS)...")
+    total_recolectado = []
 
-    with ThreadPoolExecutor(max_workers=5) as executor:
-        listas = list(executor.map(inspeccion_de_elite, FUENTES_PREMIUM))
+    with ThreadPoolExecutor(max_workers=8) as executor:
+        listas = list(executor.map(capturar_fluidez, FUENTES_FLUIDAS))
     
     for l in listas:
-        botin_hd.extend(l)
+        total_recolectado.extend(l)
 
-    # Eliminar repetidos
-    botin_final = list(set(botin_hd))
+    # Limpieza de duplicados
+    botin_final = list(set(total_recolectado))
 
     with open("lista_canales.txt", "w", encoding='utf-8') as f:
         if botin_final:
             f.write("\n".join(botin_final))
-            print(f"✅ ¡MISIÓN CUMPLIDA! Se encontraron {len(botin_final)} canales de CALIDAD.")
+            print(f"🏁 ¡ESTAMOS LISTOS! {len(botin_final)} canales capturados para su App.")
         else:
-            f.write("ERROR|La purga fue demasiado fuerte. No hay señales HD hoy.")
-
-if __name__ == "__main__":
-    ataque_calidad_total()
-    
+            f.write("ERROR|No se encontraron señales con la
+                               
