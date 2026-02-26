@@ -2,47 +2,56 @@ import requests
 import re
 from concurrent.futures import ThreadPoolExecutor
 
-# --- FUENTES DE DEPORTES MASIVAS (TODO LO QUE SEA DEPORTE) ---
-FUENTES_DEPORTES = [
+# --- OBJETIVOS ESPECÍFICOS: PARAGUAY ---
+# Buscamos nombres de canales y el código de país [PY]
+RADAR_PY = ["PARAGUAY", "TIGO SPORTS", "SNT", "TELEFUTURO", "TRECE", "GEN", "NPY", "PARAGUAY TV", "ABC TV", "C9N"]
+
+FUENTES_LATAM = [
+    "https://iptv-org.github.io/iptv/countries/py.m3u", # Base específica de Paraguay
     "https://raw.githubusercontent.com/iptv-org/iptv/master/categories/sports.m3u",
     "https://raw.githubusercontent.com/Fmacedo87/iptv/master/Deportes.m3u",
-    "https://raw.githubusercontent.com/m3u8playlist/free-iptv-channels/main/sport.m3u",
-    "https://raw.githubusercontent.com/Soky9/TV/main/Sport.m3u",
-    "https://raw.githubusercontent.com/Guiffre/IPTV-All-The-World/master/Sport.m3u"
+    "https://raw.githubusercontent.com/DeXTeR085/IPTV/main/Global.m3u"
 ]
 
-def captura_bruta(url):
+def captura_paraguay(url):
     headers = {'User-Agent': 'Mozilla/5.0'}
     try:
-        r = requests.get(url, headers=headers, timeout=30)
-        # Captura cualquier cosa que tenga el formato #EXTINF seguido de un link http
-        # Esto ignora nombres y captura todo lo que el archivo diga que es TV
+        r = requests.get(url, headers=headers, timeout=20)
+        # Captura Nombre y URL
         matches = re.findall(r'#EXTINF:.*?,(.*?)\n(http.*?m3u8[^\s]*)', r.text)
         
-        return [f"{c[0].strip()}|{c[1].strip()}" for c in matches]
+        botin_py = []
+        for nombre, link in matches:
+            n_up = nombre.upper()
+            # Si el canal es de Paraguay o está en nuestra lista de interés
+            if any(p in n_up for p in RADAR_PY) or ";py" in url.lower():
+                # Filtro básico anti-basura
+                if not any(b in n_up for b in ["RADIO", "XXX"]):
+                    botin_py.append(f"{nombre.strip()}|{link.strip()}")
+        return botin_py
     except:
         return []
 
-def ataque_total_sin_filtros():
-    print("🧨 LANZANDO ATAQUE BRUTO... CAPTURANDO TODO EL DEPORTE MUNDIAL.")
-    botin_masivo = []
+def mision_paraguay():
+    print("🇵🇾 Iniciando escaneo de canales paraguayos...")
+    lista_py = []
 
-    with ThreadPoolExecutor(max_workers=10) as executor:
-        resultados = list(executor.map(captura_bruta, FUENTES_DEPORTES))
+    with ThreadPoolExecutor(max_workers=5) as executor:
+        resultados = list(executor.map(captura_paraguay, FUENTES_LATAM))
     
     for r in resultados:
-        botin_masivo.extend(r)
+        lista_py.extend(r)
 
-    # Solo quitamos los repetidos para no llenar la App de basura igual
-    botin_final = list(set(botin_masivo))
+    # Eliminar repetidos
+    botin_final = sorted(list(set(lista_py)))
 
     with open("lista_canales.txt", "w", encoding='utf-8') as f:
         if botin_final:
             f.write("\n".join(botin_final))
-            print(f"🏁 ASALTO COMPLETADO: {len(botin_final)} canales capturados sin filtros.")
+            print(f"🏁 ¡ÉXITO! Se encontraron {len(botin_final)} canales de Paraguay.")
         else:
-            f.write("ERROR|No se pudo extraer nada de las fuentes.")
+            f.write("ERROR|No se encontraron señales de Paraguay en las fuentes.")
 
 if __name__ == "__main__":
-    ataque_total_sin_filtros()
+    mision_paraguay()
     
