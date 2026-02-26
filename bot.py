@@ -2,51 +2,81 @@ import requests
 from bs4 import BeautifulSoup
 import os
 
-# Usamos un disfraz de navegador de escritorio robusto
+# DISFRAZ DE ÉLITE (iPhone + Referer)
 HEADERS = {
-    'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/122.0.0.0 Safari/537.36',
-    'Referer': 'https://www.vipleague.io/',
-    'Accept': 'text/html,application/xhtml+xml,application/xml;q=0.9,image/webp,*/*;q=0.8'
+    'User-Agent': 'Mozilla/5.0 (iPhone; CPU iPhone OS 17_0 like Mac OS X) AppleWebKit/605.1.15 (KHTML, like Gecko) Version/17.0 Mobile/15E148 Safari/605.1',
+    'Referer': 'https://www.google.com/'
 }
 
-def mision_asalto_vipleague():
+def mision_alfa_web1():
+    print("[*] Escaneando Web 1 (MadPlay)...")
+    url = "https://ganzqowo.ps34buy87z6lothrough.sbs/es/"
+    lista = []
+    try:
+        r = requests.get(url, headers=HEADERS, timeout=10)
+        soup = BeautifulSoup(r.text, 'html.parser')
+        for link in soup.find_all('a', href=True):
+            if any(x in link['href'] for x in ['/football/', '/basketball/']):
+                nombre = link.text.strip().upper()
+                if len(nombre) > 5: lista.append(f"W1: {nombre}|{link['href']}")
+    except: pass
+    return lista
+
+def mision_bravo_web2():
+    print("[*] Verificando Web 2 (24/7)...")
+    url = "https://stream2watch.pk/s2w/808"
+    try:
+        r = requests.get(url, headers=HEADERS, timeout=10)
+        if "vveetchit.my/embed/stream-73.php" in r.text:
+            return "W2: STREAM2WATCH VIP|https://vveetchit.my/embed/stream-73.php"
+    except: return None
+
+def mision_charlie_web3():
+    print("[*] Escaneando Web 3 (AntenaSport)...")
+    url = "https://antenasport.top/"
+    lista = []
+    try:
+        r = requests.get(url, headers=HEADERS, timeout=10)
+        soup = BeautifulSoup(r.text, 'html.parser')
+        for a in soup.find_all('a', href=True):
+            if 'antenasport.top/' in a['href'] and '.php' in a['href']:
+                nombre = a.text.strip().upper()
+                if nombre and "INICIO" not in nombre:
+                    lista.append(f"W3: CANAL {len(lista)+1} VIP|{a['href']}")
+    except: pass
+    return lista
+
+def mision_echo_vipleague():
+    print("[*] Infiltrando Nueva Víctima (VipLeague)...")
     url = "https://vipleague.io/football-schedule-streaming-links"
-    print(f"[*] Atacando nueva posición: {url}")
     lista = []
     try:
         r = requests.get(url, headers=HEADERS, timeout=15)
         soup = BeautifulSoup(r.text, 'html.parser')
-        
-        # En VipLeague los partidos suelen estar en filas de tablas o divs de clase 'match'
-        partidos = soup.find_all(['a', 'div'], class_=['match', 'event']) or soup.find_all('a', href=True)
-        
-        for item in partidos:
-            href = item.get('href') if item.name == 'a' else (item.find('a')['href'] if item.find('a') else None)
-            
-            if href and "/football/" in href:
-                # Extraemos el nombre del partido (ej: Santos vs Vasco)
-                texto = " ".join(item.get_text(separator=" ").split()).upper()
-                
-                # Filtro de agenda: Nombres que representen un partido real
-                if len(texto) > 12 and " VS " in texto:
-                    full_link = href if href.startswith('http') else f"https://vipleague.io{href}"
-                    
-                    if not any(full_link in x for x in lista):
-                        lista.append(f"VIP-AGENDA: {texto}|{full_link}")
-                        print(f"[+] PARTIDO EN AGENDA: {texto[:50]}")
-                        
-    except Exception as e:
-        print(f"[!] Error en el asalto a VipLeague: {e}")
+        # Buscamos eventos que tengan ' VS ' para asegurar que son partidos
+        for link in soup.find_all('a', href=True):
+            texto = " ".join(link.get_text(separator=" ").split()).upper()
+            if " VS " in texto and "/football/" in link['href']:
+                full_link = link['href'] if link['href'].startswith('http') else f"https://vipleague.io{link['href']}"
+                lista.append(f"VIP: {texto}|{full_link}")
+    except: pass
     return lista
 
 def ejecutar_operacion():
-    eventos = mision_asalto_vipleague()
-    
+    total = mision_alfa_web1()
+    c247 = mision_bravo_web2()
+    if c247: total.append(c247)
+    total.extend(mision_charlie_web3())
+    total.extend(mision_echo_vipleague())
+
+    # Eliminar duplicados y basura
+    total = list(set(total))
+
     with open("lista_canales.txt", "w") as f:
-        f.write("\n".join(eventos))
-        
-    print(f"\n[!] VICTORIA: {len(eventos)} eventos capturados de VipLeague.")
-    os.system("git add . && git commit -m 'Asalto a VipLeague exitoso' || echo 'Sync local'")
+        f.write("\n".join(total))
+
+    print(f"\n[!] VICTORIA: {len(total)} canales capturados.")
+    os.system("git add . && git commit -m 'Restauración y limpieza multifuente' && git push origin main")
 
 if __name__ == "__main__":
     ejecutar_operacion()
