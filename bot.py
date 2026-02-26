@@ -7,27 +7,26 @@ HEADERS = {
     'Referer': 'https://www.google.com/'
 }
 
+# Lista de palabras que NO son partidos
+BASURA = ["APK", "FÚTBOL", "BALONCESTO", "CRICKET", "HOCKEY", "BÁDMINTON", "VOLEIBOL", "CICLISMO", "BALONMANO", "BÉISBOL", "TELEGRAM", "POLÍTICA", "TÉRMINOS", "YOUTUBE", "FORMULA 1", "EN VIVO", "FUTBOL AMERICANO", "FÚTBOL AUS"]
+
 def mision_ataque_nuevo_servidor():
-    # URL del nuevo servidor que detectaste
     url_base = "https://mayhypy.smnjdigv2pxjchest.cfd/es/"
     print(f"[*] Atacando servidor: {url_base}")
     lista = []
     try:
         r = requests.get(url_base, headers=HEADERS, timeout=10)
         soup = BeautifulSoup(r.text, 'html.parser')
-        # Buscamos todos los enlaces de la página
         for link in soup.find_all('a', href=True):
             nombre = link.text.strip().upper()
             href = link['href']
             
-            # Filtro de Fuerza Bruta: Si tiene nombre y no es un link interno genérico
-            if nombre and len(nombre) > 5 and not any(x in nombre for x in ["INICIO", "CONTACTO", "POLITICA"]):
-                # Si el link es relativo, le pegamos la base
+            # FILTRO INTELIGENTE: Si el nombre es largo y NO está en la lista negra
+            if len(nombre) > 10 and not any(b in nombre for b in BASURA):
                 full_link = href if href.startswith('http') else f"https://mayhypy.smnjdigv2pxjchest.cfd{href}"
-                lista.append(f"EVENTO: {nombre}|{full_link}")
-                print(f"[+] Capturado: {nombre[:40]}...")
-    except Exception as e:
-        print(f"[!] Error en el asalto: {e}")
+                lista.append(f"LIBERTADORES: {nombre}|{full_link}")
+                print(f"[+] PARTIDO CAPTURADO: {nombre}")
+    except: pass
     return lista
 
 def mision_extra_vipleague():
@@ -41,25 +40,17 @@ def mision_extra_vipleague():
             link = row.find('a', href=True)
             if link:
                 nombre = link.text.strip().upper()
-                lista.append(f"VIP-LEAGUE: {nombre}|{link['href']}")
+                if len(nombre) > 5:
+                    lista.append(f"VIP-LEAGUE: {nombre}|{link['href']}")
     except: pass
     return lista
 
 def ejecutar_operacion():
-    print("🔥 INICIANDO RECOLECCIÓN DE EVENTOS...")
-    
-    # Prioridad absoluta al nuevo servidor
-    eventos_principales = mision_ataque_nuevo_servidor()
-    eventos_secundarios = mision_extra_vipleague()
-    
-    todo = eventos_principales + eventos_secundarios
-
+    eventos = mision_ataque_nuevo_servidor() + mision_extra_vipleague()
     with open("lista_canales.txt", "w") as f:
-        f.write("\n".join(todo))
-
-    print(f"\n[!] VICTORIA: {len(todo)} eventos capturados del nuevo dominio.")
-    os.system("git add . && git commit -m 'Asalto masivo al nuevo servidor' && git push origin main")
-    print("[+] Botín enviado a GitHub.")
+        f.write("\n".join(eventos))
+    print(f"\n[!] VICTORIA: {len(eventos)} partidos reales capturados.")
+    os.system("git add . && git commit -m 'Filtro de eventos activado' && git push origin main")
 
 if __name__ == "__main__":
     ejecutar_operacion()
