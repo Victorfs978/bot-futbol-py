@@ -1,41 +1,57 @@
 import requests
 import re
 
-# WEBS DE DONDE VAMOS A SACAR LOS 100 PARTIDOS
-SITIOS_FUENTES = [
-    "https://futbollibre.net.ar/",
-    "https://pirlo.tv/",
-    "https://verliga.live/"
-]
+def ataque_fctv33():
+    # Usamos el dominio que esté activo
+    base_url = "https://www.fctv33.site"
+    headers = {
+        'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/120.0.0.0 Safari/537.36',
+        'Referer': base_url
+    }
 
-def extraer_partidos_automatico():
-    botin_del_dia = []
-    headers = {'User-Agent': 'Mozilla/5.0'}
+    try:
+        print(f"📡 Iniciando asalto a {base_url}...")
+        response = requests.get(base_url, headers=headers, timeout=15)
+        
+        # 1. Buscamos todos los links de canales/partidos en la home
+        # Buscamos patrones como: href="https://www.fctv33.site/p/canal-1.html"
+        links_canales = re.findall(r'href="(https?://www\.fctv33\.[^/]+/[^"]+\.html)"', response.text)
+        
+        # Limpiamos duplicados
+        links_unicos = list(set(links_canales))
+        print(f"🔎 Se encontraron {len(links_unicos)} posibles señales.")
 
-    for url in SITIOS_FUENTES:
-        try:
-            print(f"🕵️ Escaneando agenda en: {url}")
-            r = requests.get(url, headers=headers, timeout=10)
-            
-            # 1. Buscamos los nombres de los partidos y sus links internos
-            # Este es un patrón común en webs de fútbol
-            partidos = re.findall(r'href="(.*?)".*?>(.*?)</a>', r.text)
-            
-            for link_partido, nombre_partido in partidos:
-                if "vs" in nombre_partido.lower() or "v" in nombre_partido.lower():
-                    # 2. Entramos al link del partido para buscar el m3u8 real
-                    # Aquí es donde el bot hace el trabajo que tú hacías a mano
-                    botin_del_dia.append(f"{nombre_partido}|{link_partido}")
-                    
-        except:
-            continue
-    
-    # Guardamos la lista para tu App de Sketchware
-    with open("agenda_partidos.txt", "w", encoding='utf-8') as f:
-        f.write("\n".join(botin_del_dia))
-    
-    print(f"✅ Agenda lista con {len(botin_del_dia)} eventos encontrados.")
+        botin_final = []
+
+        for link in links_unicos:
+            try:
+                # 2. Entramos a cada página de canal
+                res_canal = requests.get(link, headers=headers, timeout=10)
+                
+                # 3. Buscamos el link del reproductor (m3u8) escondido
+                # A veces está directo, a veces dentro de un iframe
+                m3u8 = re.search(r'["\'](http[^\s"\']+\.m3u8[^\s"\']*)["\']', res_canal.text)
+                
+                # Extraemos un nombre amigable del link (ej: canal-1)
+                nombre = link.split('/')[-1].replace('.html', '').replace('-', ' ').upper()
+
+                if m3u8:
+                    botin_final.append(f"{nombre}|{m3u8.group(1)}")
+                    print(f"✅ CAPTURADO: {nombre}")
+            except:
+                continue
+
+        # 4. Guardamos el botín para Sketchware
+        with open("lista_canales.txt", "w", encoding='utf-8') as f:
+            if botin_final:
+                f.write("\n".join(botin_final))
+                print(f"🏁 ¡MISIÓN ÉXITOSA! {len(botin_final)} links extraídos automáticamente.")
+            else:
+                print("❌ No se pudo extraer la señal. El sitio puede tener protección anti-bot.")
+
+    except Exception as e:
+        print(f"🚫 Error en el ataque: {e}")
 
 if __name__ == "__main__":
-    extraer_partidos_automatico()
+    ataque_fctv33()
     
