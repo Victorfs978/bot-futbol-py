@@ -1,71 +1,71 @@
-from selenium import webdriver
-from selenium.webdriver.chrome.service import Service
-from selenium.webdriver.chrome.options import Options
-import re
-import time
+import requests
+from bs4 import BeautifulSoup
 import os
 
-# Dominio activo de MadPlay77
-BASE_URL = "https://ganzqowo.ps34buy87z6lothrough.sbs"
-TARGET = f"{BASE_URL}/es/"
+# CONFIGURACIÓN DE DISFRAZ (iPhone 17)
+HEADERS = {'User-Agent': 'Mozilla/5.0 (iPhone; CPU iPhone OS 17_0 like Mac OS X) AppleWebKit/605.1.15 (KHTML, like Gecko) Version/17.0 Mobile/15E148 Safari/604.1'}
 
-def ataque_kali_dios():
-    print(f"[*] Escaneando objetivos en {TARGET}...")
-    options = Options()
-    options.add_argument("--headless")
-    options.add_argument("--no-sandbox")
-    options.add_argument("--disable-dev-shm-usage")
-    # Disfraz de iPhone 14 Pro
-    ua = "Mozilla/5.0 (iPhone; CPU iPhone OS 16_0 like Mac OS X) AppleWebKit/605.1.15 (KHTML, like Gecko) Version/16.0 Mobile/15E148 Safari/604.1"
-    options.add_argument(f'user-agent={ua}')
-
+def mision_alfa_web1():
+    print("[*] Escaneando eventos en Web 1...")
+    url = "https://ganzqowo.ps34buy87z6lothrough.sbs/es/"
+    lista = []
     try:
-        service = Service("/usr/bin/chromedriver")
-        driver = webdriver.Chrome(service=service, options=options)
-        driver.get(TARGET)
-        
-        # Espera estratégica para carga de JavaScript
-        time.sleep(15) 
-        
-        html = driver.page_source
-        
-        # Patrón más agresivo: busca cualquier enlace con un ID de 7 dígitos seguido de .html
-        # Esto captura fútbol, basket, tenis y cualquier otro deporte
-        patron = r'href="([^"]+\d{7}/[^"]+\.html)"'
-        enlaces = re.findall(patron, html)
-        
-        partidos = []
-        for href in enlaces:
-            # Limpiamos el enlace para asegurar que sea absoluto
-            if not href.startswith("http"):
-                href = f"{BASE_URL}{href}" if href.startswith("/") else f"{BASE_URL}/{href}"
-            
-            # Inyectamos la llave maestra icg=UFk
-            link_final = f"{href}?icg=UFk"
-            
-            # Extraemos un nombre legible del enlace
-            nombre = href.split('/')[-1].replace('.html', '').replace('-', ' ').upper()
-            partidos.append(f"{nombre}|{link_final}")
+        r = requests.get(url, headers=HEADERS, timeout=10)
+        soup = BeautifulSoup(r.text, 'html.parser')
+        for link in soup.find_all('a', href=True):
+            if any(x in link['href'] for x in ['/football/', '/basketball/', '/volleyball/']):
+                nombre = link.text.strip().upper()
+                if nombre:
+                    lista.append(f"{nombre}|{link['href']}")
+    except: pass
+    return lista
 
-        if partidos:
-            # Eliminamos duplicados y guardamos el botín
-            resultado = list(set(partidos))
-            with open("/home/kali/lista_canales.txt", "w", encoding='utf-8') as f:
-                f.write("\n".join(resultado))
-            print(f"[!] VICTORIA: {len(resultado)} partidos capturados y listos para Sketchware.")
-            
-            # Sincronización con tu GitHub
-            os.system("git add /home/kali/lista_canales.txt")
-            os.system("git commit -m 'Actualización de canales MadPlay'")
-            os.system("git push")
-            print("[+] GitHub sincronizado con éxito.")
-        else:
-            print("[-] El objetivo está vacío. El dominio ha cambiado o la agenda está cerrada.")
-            
-    except Exception as e:
-        print(f"[-] Error en la infiltración: {e}")
-    finally:
-        if 'driver' in locals(): driver.quit()
+def mision_bravo_web2():
+    print("[*] Verificando Canal 24/7 (Stream2Watch)...")
+    url = "https://stream2watch.pk/s2w/808"
+    try:
+        r = requests.get(url, headers=HEADERS, timeout=10)
+        if "vveetchit.my/embed/stream-73.php" in r.text:
+            return "STREAM2WATCH - CANAL 808|https://vveetchit.my/embed/stream-73.php"
+    except: return None
+
+def mision_charlie_web3():
+    print("[*] Escaneando eventos en AntenaSport (Víctima 3)...")
+    url = "https://antenasport.top/"
+    lista = []
+    try:
+        r = requests.get(url, headers=HEADERS, timeout=10)
+        soup = BeautifulSoup(r.text, 'html.parser')
+        for a in soup.find_all('a', href=True):
+            if 'antenasport.top/' in a['href'] and '.php' in a['href']:
+                nombre = a.text.strip().upper()
+                if nombre and "INICIO" not in nombre:
+                    lista.append(f"ANTENA: {nombre}|{a['href']}")
+    except: pass
+    return lista
+
+def ejecutar_operacion():
+    # Unir todo el botín
+    total = mision_alfa_web1()
+    
+    c247 = mision_bravo_web2()
+    if c247: total.append(c247)
+    
+    web3 = mision_charlie_web3()
+    total.extend(web3)
+    
+    # Guardar en la carpeta del repositorio
+    archivo = "lista_canales.txt"
+    with open(archivo, "w") as f:
+        f.write("\n".join(total))
+    
+    print(f"\n[!] VICTORIA: {len(total)} canales totales capturados.")
+    
+    # Sincronizar con GitHub
+    os.system("git add .")
+    os.system("git commit -m 'Infiltración Triple Exitosa'")
+    os.system("git push origin main")
+    print("[+] GitHub actualizado con las 3 víctimas.")
 
 if __name__ == "__main__":
-    ataque_kali_dios()
+    ejecutar_operacion()
