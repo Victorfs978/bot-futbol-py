@@ -1,57 +1,68 @@
 import requests
 import re
 
-def ataque_fctv33():
-    # Usamos el dominio que esté activo
+def asalto_fctv33_blindado():
     base_url = "https://www.fctv33.site"
     headers = {
-        'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/120.0.0.0 Safari/537.36',
-        'Referer': base_url
+        'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/122.0.0.0 Safari/537.36',
+        'Referer': base_url,
+        'Accept': 'text/html,application/xhtml+xml,application/xml;q=0.9,image/avif,image/webp,*/*;q=0.8'
     }
 
     try:
-        print(f"📡 Iniciando asalto a {base_url}...")
+        print(f"🕵️ Intentando romper el cifrado de {base_url}...")
         response = requests.get(base_url, headers=headers, timeout=15)
         
-        # 1. Buscamos todos los links de canales/partidos en la home
-        # Buscamos patrones como: href="https://www.fctv33.site/p/canal-1.html"
-        links_canales = re.findall(r'href="(https?://www\.fctv33\.[^/]+/[^"]+\.html)"', response.text)
+        # 1. Buscamos todas las páginas de canales (las que terminan en .html)
+        paginas = re.findall(r'href="(https?://www\.fctv33\.[^/]+/[^"]+\.html)"', response.text)
+        paginas_unicas = list(set(paginas))
         
-        # Limpiamos duplicados
-        links_unicos = list(set(links_canales))
-        print(f"🔎 Se encontraron {len(links_unicos)} posibles señales.")
+        if not paginas_unicas:
+            print("❌ No se encontraron páginas de canales. El sitio cambió su estructura.")
+            return
 
-        botin_final = []
-
-        for link in links_unicos:
+        botin = []
+        for pg in paginas_unicas:
             try:
-                # 2. Entramos a cada página de canal
-                res_canal = requests.get(link, headers=headers, timeout=10)
+                # 2. Entramos a la página del canal
+                res_pg = requests.get(pg, headers=headers, timeout=10)
                 
-                # 3. Buscamos el link del reproductor (m3u8) escondido
-                # A veces está directo, a veces dentro de un iframe
-                m3u8 = re.search(r'["\'](http[^\s"\']+\.m3u8[^\s"\']*)["\']', res_canal.text)
+                # 3. TÁCTICA NUEVA: Buscamos el IFRAME o el SCRIPT que carga el player
+                # Buscamos fuentes de video típicas que usa FCTV33 (como vood, sfntv, stream, etc.)
+                iframe = re.search(r'iframe.*?src="(.*?)"', res_pg.text)
                 
-                # Extraemos un nombre amigable del link (ej: canal-1)
-                nombre = link.split('/')[-1].replace('.html', '').replace('-', ' ').upper()
+                nombre = pg.split('/')[-1].replace('.html', '').replace('-', ' ').upper()
 
-                if m3u8:
-                    botin_final.append(f"{nombre}|{m3u8.group(1)}")
-                    print(f"✅ CAPTURADO: {nombre}")
+                if iframe:
+                    url_iframe = iframe.group(1)
+                    # Si el iframe es relativo, le pegamos la base
+                    if url_iframe.startswith('//'):
+                        url_iframe = 'https:' + url_iframe
+                    
+                    # Guardamos el link del reproductor (a veces esto es lo único que necesitamos)
+                    botin.append(f"{nombre}|{url_iframe}")
+                    print(f"✅ CAPTURADO PLAYER: {nombre}")
+                
+                # Intentamos buscar el m3u8 escondido en scripts
+                m3u8_hidden = re.search(r'source:\s*["\'](http.*?m3u8.*?)["\']', res_pg.text)
+                if m3u8_hidden:
+                    botin.append(f"{nombre}_DIRECTO|{m3u8_hidden.group(1)}")
+                    print(f"🔥 CAPTURADO M3U8: {nombre}")
+
             except:
                 continue
 
-        # 4. Guardamos el botín para Sketchware
+        # 4. Generamos el botín para Sketchware
         with open("lista_canales.txt", "w", encoding='utf-8') as f:
-            if botin_final:
-                f.write("\n".join(botin_final))
-                print(f"🏁 ¡MISIÓN ÉXITOSA! {len(botin_final)} links extraídos automáticamente.")
+            if botin:
+                f.write("\n".join(botin))
+                print(f"🏁 ASALTO FINALIZADO: {len(botin)} señales en la bolsa.")
             else:
-                print("❌ No se pudo extraer la señal. El sitio puede tener protección anti-bot.")
+                print("⚠️ El sitio está usando protección por Cookies. Necesitamos otra táctica.")
 
     except Exception as e:
-        print(f"🚫 Error en el ataque: {e}")
+        print(f"🚫 Error en la conexión: {e}")
 
 if __name__ == "__main__":
-    ataque_fctv33()
-    
+    asalto_fctv33_blindado()
+            
