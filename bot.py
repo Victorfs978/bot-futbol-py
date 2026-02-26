@@ -2,35 +2,37 @@ import requests
 from bs4 import BeautifulSoup
 import os
 
-# CONFIGURACIÓN DE DISFRAZ (iPhone 17)
-HEADERS = {'User-Agent': 'Mozilla/5.0 (iPhone; CPU iPhone OS 17_0 like Mac OS X) AppleWebKit/605.1.15 (KHTML, like Gecko) Version/17.0 Mobile/15E148 Safari/604.1'}
+# DISFRAZ DE ÉLITE (iPhone + Referer)
+HEADERS = {
+    'User-Agent': 'Mozilla/5.0 (iPhone; CPU iPhone OS 17_0 like Mac OS X) AppleWebKit/605.1.15 (KHTML, like Gecko) Version/17.0 Mobile/15E148 Safari/604.1',
+    'Referer': 'https://www.google.com/'
+}
 
 def mision_alfa_web1():
-    print("[*] Escaneando eventos en Web 1...")
+    print("[*] Escaneando Web 1 (MadPlay)...")
     url = "https://ganzqowo.ps34buy87z6lothrough.sbs/es/"
     lista = []
     try:
         r = requests.get(url, headers=HEADERS, timeout=10)
         soup = BeautifulSoup(r.text, 'html.parser')
         for link in soup.find_all('a', href=True):
-            if any(x in link['href'] for x in ['/football/', '/basketball/', '/volleyball/']):
+            if any(x in link['href'] for x in ['/football/', '/basketball/']):
                 nombre = link.text.strip().upper()
-                if nombre:
-                    lista.append(f"{nombre}|{link['href']}")
+                if nombre: lista.append(f"W1: {nombre}|{link['href']}")
     except: pass
     return lista
 
 def mision_bravo_web2():
-    print("[*] Verificando Canal 24/7 (Stream2Watch)...")
+    print("[*] Verificando Web 2 (24/7)...")
     url = "https://stream2watch.pk/s2w/808"
     try:
         r = requests.get(url, headers=HEADERS, timeout=10)
         if "vveetchit.my/embed/stream-73.php" in r.text:
-            return "STREAM2WATCH - CANAL 808|https://vveetchit.my/embed/stream-73.php"
+            return "W2: STREAM2WATCH VIP|https://vveetchit.my/embed/stream-73.php"
     except: return None
 
 def mision_charlie_web3():
-    print("[*] Escaneando eventos en AntenaSport (Víctima 3)...")
+    print("[*] Escaneando Web 3 (AntenaSport)...")
     url = "https://antenasport.top/"
     lista = []
     try:
@@ -40,12 +42,27 @@ def mision_charlie_web3():
             if 'antenasport.top/' in a['href'] and '.php' in a['href']:
                 nombre = a.text.strip().upper()
                 if nombre and "INICIO" not in nombre:
-                    lista.append(f"ANTENA: {nombre}|{a['href']}")
+                    lista.append(f"W3: {nombre}|{a['href']}")
+    except: pass
+    return lista
+
+def mision_echo_vipleague():
+    print("[*] Infiltrando Nueva Víctima (VipLeague)...")
+    url = "https://vipleague.io/football-schedule-streaming-links"
+    lista = []
+    try:
+        r = requests.get(url, headers=HEADERS, timeout=15)
+        soup = BeautifulSoup(r.text, 'html.parser')
+        # Buscamos los eventos en la tabla de horarios
+        for row in soup.find_all('div', class_='match-row'): # Ajustado a la estructura de VipLeague
+            link = row.find('a', href=True)
+            if link:
+                nombre = link.text.strip().upper()
+                if nombre: lista.append(f"VIP: {nombre}|{link['href']}")
     except: pass
     return lista
 
 def ejecutar_operacion():
-    # Unir todo el botín
     total = mision_alfa_web1()
     
     c247 = mision_bravo_web2()
@@ -54,18 +71,17 @@ def ejecutar_operacion():
     web3 = mision_charlie_web3()
     total.extend(web3)
     
-    # Guardar en la carpeta del repositorio
-    archivo = "lista_canales.txt"
-    with open(archivo, "w") as f:
+    web4 = mision_echo_vipleague()
+    total.extend(web4)
+    
+    with open("lista_canales.txt", "w") as f:
         f.write("\n".join(total))
     
-    print(f"\n[!] VICTORIA: {len(total)} canales totales capturados.")
-    
-    # Sincronizar con GitHub
-    os.system("git add .")
-    os.system("git commit -m 'Infiltración Triple Exitosa'")
-    os.system("git push origin main")
-    print("[+] GitHub actualizado con las 3 víctimas.")
+    print(f"\n[!] VICTORIA: {len(total)} canales de 4 fuentes capturados.")
+    os.system("git add . && git commit -m 'Infiltración Cuádruple VIP' && git push origin main")
+    print("[+] GitHub actualizado.")
 
 if __name__ == "__main__":
     ejecutar_operacion()
+
+
